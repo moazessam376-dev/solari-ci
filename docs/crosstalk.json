@@ -1,0 +1,283 @@
+{
+  "baseline": {
+    "failure_rate": 0.16666666666666666,
+    "job_name": "${{ matrix.os }} \u00b7 node ${{ matrix.node }} (matrix: node=20)",
+    "median_s": 122.0,
+    "monthly_runs_est": 600.0,
+    "p90_s": 160.0,
+    "runner_label": "ubuntu-latest",
+    "runs": 18
+  },
+  "findings": [
+    {
+      "code": "NO_TIMEOUT",
+      "job": "test",
+      "message": "Job `test` has no job-level timeout.",
+      "severity": "low",
+      "step": null,
+      "suggestion": "Add `timeout-minutes: 15` under this job to bound its runtime."
+    },
+    {
+      "code": "MATRIX_NOTE",
+      "job": "test",
+      "message": "Solari only measured and analyzed the first matrix cell for this job.",
+      "severity": "info",
+      "step": null,
+      "suggestion": "Re-run with the other matrix values explicitly if you need results for every cell."
+    }
+  ],
+  "github_cost_usd": 0.0,
+  "job_id": "test",
+  "owner_repo": "moazessam376-dev/crosstalk",
+  "recommendation": "Use 1 vCPU: 191 s for $0.0030 per run, within 10% of the 1 vCPU time (191 s) at 100% of its cost. GitHub ubuntu-latest median is 122 s ($0.030/run).",
+  "runs": [
+    {
+      "boot_s": 1.9217291249660775,
+      "cpu": 1,
+      "cpu_online_s": 0.0,
+      "error": null,
+      "job_id": "test",
+      "mem_mb": 2048,
+      "ok": true,
+      "sandbox_id": "ZGVza3RvcC1wb29sLWktMDliYTQyZGEzOGU5NzJmOTM6dm1fMDAxMzUwOmNtdGh4N2k1eTAxcGpvMDAxcXo3YWhsYWQ6MTc4ODQ2NzAwMzc2OA.1BiK42tYW2cXjxxHmNoLqxdz64XqMhVDIgD3w04Rfn8",
+      "solari_cost_usd": 0.0030313917729169284,
+      "steps": [
+        {
+          "exit_code": 0,
+          "log_tail": "Cloning into '/work/repo'...\n",
+          "name": "actions/checkout@v7",
+          "note": "checkout done by runner",
+          "seconds": 2.8231713749701157,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "v20.20.2\n10.8.2\n",
+          "name": "actions/setup-node@v7",
+          "note": null,
+          "seconds": 5.042240165988915,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation\n\n> crosstalk-ai@0.1.0 postinstall\n> node scripts/fix-node-pty.mjs\n\ncrosstalk: made node_modules/node-pty/prebuilds/darwin-arm64/spawn-helper executable (node-pty ships it 0644)\ncrosstalk: made node_modules/node-pty/prebuilds/darwin-x64/spawn-helper executable (node-pty ships it 0644)\n\nadded 269 packages, and audited 270 packages in 11s\n\n61 packages are looking for funding\n  run `npm fund` for details\n\n7 vulnerabilities (4 moderate, 2 high, 1 critical)\n\nTo address issues that do not require attention, run:\n  npm audit fix\n\nTo address all issues (including breaking changes), run:\n  npm audit fix --force\n\nRun `npm audit` for details.\n",
+          "name": "npm ci",
+          "note": null,
+          "seconds": 11.707928791991435,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "\n> crosstalk-ai@0.1.0 typecheck\n> tsc -p tsconfig.test.json\n\n",
+          "name": "npm run typecheck",
+          "note": null,
+          "seconds": 16.17189691704698,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "\n> crosstalk-ai@0.1.0 build\n> tsc -p tsconfig.json && vite build\n\n\u001b[36mvite v6.4.3 \u001b[32mbuilding for production...\u001b[36m\u001b[39m\ntransforming...\n\u001b[32m\u2713\u001b[39m 65 modules transformed.\nrendering chunks...\ncomputing gzip size...\n\u001b[2mdist/ui/\u001b[22m\u001b[32mindex.html                 \u001b[39m\u001b[1m\u001b[2m  0.40 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m \u2502 gzip:  0.27 kB\u001b[22m\n\u001b[2mdist/ui/\u001b[22m\u001b[2massets/\u001b[22m\u001b[35mindex-QcE41RGa.css  \u001b[39m\u001b[1m\u001b[2m 47.54 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m \u2502 gzip:  8.51 kB\u001b[22m\n\u001b[2mdist/ui/\u001b[22m\u001b[2massets/\u001b[22m\u001b[36mindex-CMUMLw7p.js   \u001b[39m\u001b[1m\u001b[2m229.36 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m \u2502 gzip: 71.89 kB\u001b[22m\n\u001b[32m\u2713 built in 1.99s\u001b[39m\n",
+          "name": "npm run build",
+          "note": null,
+          "seconds": 11.717878416995518,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "9m tests/cli/up-banner.test.ts \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/harness/seat-env.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/contracts/message-amendment.test.ts \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/clock.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/contracts/participant-fields.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/contracts/spoc-amendment.test.ts \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/bench/leeward-landmine.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/bench/quorum-landmine.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/bench/quorum-fixture.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/packaging.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/bench/leeward-fixture.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/dispute.test.tsx \u001b[2m(\u001b[22m\u001b[2m28 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 456\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/launcher.test.tsx \u001b[2m(\u001b[22m\u001b[2m27 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 1118\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/live-hub.test.tsx \u001b[2m(\u001b[22m\u001b[2m20 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 726\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/attachments.test.tsx \u001b[2m(\u001b[22m\u001b[2m17 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 256\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/layout.test.tsx \u001b[2m(\u001b[22m\u001b[2m16 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 257\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/terminal-native.test.tsx \u001b[2m(\u001b[22m\u001b[2m14 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 129\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/decision-card.test.tsx \u001b[2m(\u001b[22m\u001b[2m8 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 132\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-picker.test.tsx \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 248\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/stream-scroll.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 100\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/unsupported-event.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 55\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/session-keys.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 214\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-view.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 156\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/terminal-keyboard.test.tsx \u001b[2m(\u001b[22m\u001b[2m12 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 39\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/env-rail.test.tsx \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 77\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/board-survives-cli.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 153\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/cards.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 144\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-reset.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 25\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/message-card.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 50\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/message-head.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 50\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/mirror-status.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 53\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/useLog.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 176\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/app.test.tsx \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 177\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/compose-form.test.tsx \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 45\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m134 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m2 skipped\u001b[39m\u001b[90m (136)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m1282 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m3 skipped\u001b[39m\u001b[90m (1285)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:24:11\n\u001b[2m   Duration \u001b[22m 141.11s\u001b[2m (transform 2.53s, setup 0ms, collect 15.05s, tests 93.50s, environment 10.69s, prepare 7.94s)\u001b[22m\n\n",
+          "name": "npm test",
+          "note": null,
+          "seconds": 142.04888483299874,
+          "status": "ok"
+        }
+      ],
+      "total_s": 191.45632250001654
+    },
+    {
+      "boot_s": 1.852535792044364,
+      "cpu": 2,
+      "cpu_online_s": 2.6150629579788074,
+      "error": null,
+      "job_id": "test",
+      "mem_mb": 2048,
+      "ok": true,
+      "sandbox_id": "ZGVza3RvcC1wb29sLWktMDliYTQyZGEzOGU5NzJmOTM6dm1fMDAxMzQxOmNtdGh4N2k1eTAxcGpvMDAxcXo3YWhsYWQ6MTc4ODQ2NzAwMzc4NA.27eT3TFR4Vw2El--UuZtH6q5rC_miao2MFDPTk7OEj8",
+      "solari_cost_usd": 0.005048116828537443,
+      "steps": [
+        {
+          "exit_code": 0,
+          "log_tail": "Cloning into '/work/repo'...\n",
+          "name": "actions/checkout@v7",
+          "note": "checkout done by runner",
+          "seconds": 2.829185749986209,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "v20.20.2\n10.8.2\n",
+          "name": "actions/setup-node@v7",
+          "note": null,
+          "seconds": 5.058272249996662,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation\n\n> crosstalk-ai@0.1.0 postinstall\n> node scripts/fix-node-pty.mjs\n\ncrosstalk: made node_modules/node-pty/prebuilds/darwin-arm64/spawn-helper executable (node-pty ships it 0644)\ncrosstalk: made node_modules/node-pty/prebuilds/darwin-x64/spawn-helper executable (node-pty ships it 0644)\n\nadded 269 packages, and audited 270 packages in 8s\n\n61 packages are looking for funding\n  run `npm fund` for details\n\n7 vulnerabilities (4 moderate, 2 high, 1 critical)\n\nTo address issues that do not require attention, run:\n  npm audit fix\n\nTo address all issues (including breaking changes), run:\n  npm audit fix --force\n\nRun `npm audit` for details.\n",
+          "name": "npm ci",
+          "note": null,
+          "seconds": 10.189309417037293,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "\n> crosstalk-ai@0.1.0 typecheck\n> tsc -p tsconfig.test.json\n\n",
+          "name": "npm run typecheck",
+          "note": null,
+          "seconds": 11.717636749963276,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "\n> crosstalk-ai@0.1.0 build\n> tsc -p tsconfig.json && vite build\n\n\u001b[36mvite v6.4.3 \u001b[32mbuilding for production...\u001b[36m\u001b[39m\ntransforming...\n\u001b[32m\u2713\u001b[39m 65 modules transformed.\nrendering chunks...\ncomputing gzip size...\n\u001b[2mdist/ui/\u001b[22m\u001b[32mindex.html                 \u001b[39m\u001b[1m\u001b[2m  0.40 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m \u2502 gzip:  0.27 kB\u001b[22m\n\u001b[2mdist/ui/\u001b[22m\u001b[2massets/\u001b[22m\u001b[35mindex-QcE41RGa.css  \u001b[39m\u001b[1m\u001b[2m 47.54 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m \u2502 gzip:  8.51 kB\u001b[22m\n\u001b[2mdist/ui/\u001b[22m\u001b[2massets/\u001b[22m\u001b[36mindex-CMUMLw7p.js   \u001b[39m\u001b[1m\u001b[2m229.36 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m \u2502 gzip: 71.89 kB\u001b[22m\n\u001b[32m\u2713 built in 1.28s\u001b[39m\n",
+          "name": "npm run build",
+          "note": null,
+          "seconds": 7.321767249959521,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/clock.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/contracts/participant-fields.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\n \u001b[32m\u2713\u001b[39m tests/contracts/spoc-amendment.test.ts \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\n \u001b[32m\u2713\u001b[39m tests/bench/leeward-landmine.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/bench/quorum-landmine.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 5\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/bench/quorum-fixture.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/packaging.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/bench/leeward-fixture.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/dispute.test.tsx \u001b[2m(\u001b[22m\u001b[2m28 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 883\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m C3 the human can vote\u001b[2m > \u001b[22moffers a vote to a participant the decision names \u001b[33m537\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/launcher.test.tsx \u001b[2m(\u001b[22m\u001b[2m27 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 691\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/live-hub.test.tsx \u001b[2m(\u001b[22m\u001b[2m20 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 980\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m CT-10 a hub with no daemon is not a working hub\u001b[2m > \u001b[22mrenders no composer, no channel list and no participants panel \u001b[33m322\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/attachments.test.tsx \u001b[2m(\u001b[22m\u001b[2m17 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 177\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/layout.test.tsx \u001b[2m(\u001b[22m\u001b[2m16 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 225\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/terminal-native.test.tsx \u001b[2m(\u001b[22m\u001b[2m14 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 97\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/decision-card.test.tsx \u001b[2m(\u001b[22m\u001b[2m8 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 86\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-picker.test.tsx \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 204\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/stream-scroll.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 90\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/unsupported-event.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 53\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/session-keys.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 130\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-view.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 123\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/terminal-keyboard.test.tsx \u001b[2m(\u001b[22m\u001b[2m12 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 8\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/env-rail.test.tsx \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 84\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/board-survives-cli.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 120\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/cards.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 128\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-reset.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 22\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/message-card.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 50\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/message-head.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 50\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/mirror-status.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 40\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/useLog.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 176\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/app.test.tsx \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 149\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/compose-form.test.tsx \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 51\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m134 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m2 skipped\u001b[39m\u001b[90m (136)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m1282 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m3 skipped\u001b[39m\u001b[90m (1285)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:24:03\n\u001b[2m   Duration \u001b[22m 153.08s\u001b[2m (transform 3.71s, setup 0ms, collect 13.43s, tests 108.92s, environment 8.72s, prepare 6.94s)\u001b[22m\n\n",
+          "name": "npm test",
+          "note": null,
+          "seconds": 155.93974029191304,
+          "status": "ok"
+        }
+      ],
+      "total_s": 197.53500633407384
+    },
+    {
+      "boot_s": 0.2446550839813426,
+      "cpu": 4,
+      "cpu_online_s": 3.0734947910532355,
+      "error": "orted-event.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 49\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/session-keys.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 1292\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m driving a mirrored terminal by key\u001b[2m > \u001b[22msends the bytes a real arrow key sends \u001b[33m713\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m driving a mirrored terminal by key\u001b[2m > \u001b[22moffers up, down, return and escape \u2014 what a select dialog needs \u001b[33m504\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-view.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 348\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/terminal-keyboard.test.tsx \u001b[2m(\u001b[22m\u001b[2m12 tests\u001b[22m\u001b[2m)\u001b[22m\n \u001b[32m\u2713\u001b[39m tests/ui/env-rail.test.tsx \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 890\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m pointing the mirror at a repository from the hub\u001b[2m > \u001b[22msends what was pasted \u001b[33m381\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m pointing the mirror at a repository from the hub\u001b[2m > \u001b[22msays why it was refused rather than clearing the box \u001b[33m501\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/board-survives-cli.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 126\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/cards.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 159\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-reset.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 21\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/message-card.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 70\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/message-head.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 20\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/mirror-status.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 12\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/useLog.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 519\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m useLog\u001b[2m > \u001b[22mloads a fixture log into ordered events \u001b[33m410\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/app.test.tsx \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 433\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m rendered hub wiring\u001b[2m > \u001b[22mhands the cross-room dispute claim from the fixture to the rendered view \u001b[33m433\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/compose-form.test.tsx \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 401\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m compose form\u001b[2m > \u001b[22mlists PATH probes and posts the job on Start \u001b[33m401\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[1m\u001b[7m Failed Tests 1 \u001b[27m\u001b[22m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m tests/harness/submit-turn.test.ts\u001b[2m > \u001b[22msubmitting a turn to an interactive seat\u001b[2m > \u001b[22msubmits the opening job the same way\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [ 'build the vault' ] to deeply equal [ 'build the vault', '\\r' ]\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    \"build the vault\",\u001b[22m\n\u001b[32m-   \"\r\",\u001b[39m\n\u001b[2m  ]\u001b[22m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/harness/submit-turn.test.ts:\u001b[2m125:26\u001b[22m\u001b[39m\n    \u001b[90m123| \u001b[39m\n    \u001b[90m124| \u001b[39m    \u001b[35mawait\u001b[39m \u001b[35mnew\u001b[39m \u001b[33mPromise\u001b[39m((done) \u001b[33m=>\u001b[39m \u001b[34msetTimeout\u001b[39m(done\u001b[33m,\u001b[39m \u001b[34m20\u001b[39m))\u001b[33m;\u001b[39m\n    \u001b[90m125| \u001b[39m    \u001b[34mexpect\u001b[39m(pty\u001b[33m.\u001b[39m\u001b[34mwrites\u001b[39m())\u001b[33m.\u001b[39m\u001b[34mtoEqual\u001b[39m([\u001b[32m'build the vault'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mRETURN\u001b[39m])\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                         \u001b[31m^\u001b[39m\n    \u001b[90m126| \u001b[39m  })\u001b[33m;\u001b[39m\n    \u001b[90m127| \u001b[39m})\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/1]\u23af\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m133 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m2 skipped\u001b[39m\u001b[90m (136)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m1281 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m3 skipped\u001b[39m\u001b[90m (1285)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:27:09\n\u001b[2m   Duration \u001b[22m 190.96s\u001b[2m (transform 11.31s, setup 0ms, collect 21.25s, tests 129.12s, environment 8.29s, prepare 6.68s)\u001b[22m\n\n",
+      "job_id": "test",
+      "mem_mb": 4096,
+      "ok": false,
+      "sandbox_id": "ZGVza3RvcC1wb29sLWktMDliYTQyZGEzOGU5NzJmOTM6dm1fMDAxMzU1OmNtdGh4N2k1eTAxcGpvMDAxcXo3YWhsYWQ6MTc4ODQ2NzE5Mzc0OQ.sI0dNe2HpbNtCl7_MR1baKeTyG76wobJK-Y3BJri004",
+      "solari_cost_usd": 0.011667654504795661,
+      "steps": [
+        {
+          "exit_code": 0,
+          "log_tail": "Cloning into '/work/repo'...\n",
+          "name": "actions/checkout@v7",
+          "note": "checkout done by runner",
+          "seconds": 2.849153000046499,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "v20.20.2\n10.8.2\n",
+          "name": "actions/setup-node@v7",
+          "note": null,
+          "seconds": 2.8439283330226317,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation\n\n> crosstalk-ai@0.1.0 postinstall\n> node scripts/fix-node-pty.mjs\n\ncrosstalk: made node_modules/node-pty/prebuilds/darwin-arm64/spawn-helper executable (node-pty ships it 0644)\ncrosstalk: made node_modules/node-pty/prebuilds/darwin-x64/spawn-helper executable (node-pty ships it 0644)\n\nadded 269 packages, and audited 270 packages in 8s\n\n61 packages are looking for funding\n  run `npm fund` for details\n\n7 vulnerabilities (4 moderate, 2 high, 1 critical)\n\nTo address issues that do not require attention, run:\n  npm audit fix\n\nTo address all issues (including breaking changes), run:\n  npm audit fix --force\n\nRun `npm audit` for details.\n",
+          "name": "npm ci",
+          "note": null,
+          "seconds": 9.442003083997406,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "\n> crosstalk-ai@0.1.0 typecheck\n> tsc -p tsconfig.test.json\n\n",
+          "name": "npm run typecheck",
+          "note": null,
+          "seconds": 9.467625167104416,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "\n> crosstalk-ai@0.1.0 build\n> tsc -p tsconfig.json && vite build\n\n\u001b[36mvite v6.4.3 \u001b[32mbuilding for production...\u001b[36m\u001b[39m\ntransforming...\n\u001b[32m\u2713\u001b[39m 65 modules transformed.\nrendering chunks...\ncomputing gzip size...\n\u001b[2mdist/ui/\u001b[22m\u001b[32mindex.html                 \u001b[39m\u001b[1m\u001b[2m  0.40 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m \u2502 gzip:  0.27 kB\u001b[22m\n\u001b[2mdist/ui/\u001b[22m\u001b[2massets/\u001b[22m\u001b[35mindex-QcE41RGa.css  \u001b[39m\u001b[1m\u001b[2m 47.54 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m \u2502 gzip:  8.51 kB\u001b[22m\n\u001b[2mdist/ui/\u001b[22m\u001b[2massets/\u001b[22m\u001b[36mindex-CMUMLw7p.js   \u001b[39m\u001b[1m\u001b[2m229.36 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m \u2502 gzip: 71.89 kB\u001b[22m\n\u001b[32m\u2713 built in 1.23s\u001b[39m\n",
+          "name": "npm run build",
+          "note": null,
+          "seconds": 7.679623417090625,
+          "status": "ok"
+        },
+        {
+          "exit_code": 1,
+          "log_tail": "orted-event.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 49\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/session-keys.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 1292\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m driving a mirrored terminal by key\u001b[2m > \u001b[22msends the bytes a real arrow key sends \u001b[33m713\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m driving a mirrored terminal by key\u001b[2m > \u001b[22moffers up, down, return and escape \u2014 what a select dialog needs \u001b[33m504\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-view.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 348\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/terminal-keyboard.test.tsx \u001b[2m(\u001b[22m\u001b[2m12 tests\u001b[22m\u001b[2m)\u001b[22m\n \u001b[32m\u2713\u001b[39m tests/ui/env-rail.test.tsx \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 890\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m pointing the mirror at a repository from the hub\u001b[2m > \u001b[22msends what was pasted \u001b[33m381\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m pointing the mirror at a repository from the hub\u001b[2m > \u001b[22msays why it was refused rather than clearing the box \u001b[33m501\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/board-survives-cli.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 126\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/cards.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 159\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-reset.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 21\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/message-card.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 70\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/message-head.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 20\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/mirror-status.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 12\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/useLog.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 519\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m useLog\u001b[2m > \u001b[22mloads a fixture log into ordered events \u001b[33m410\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/app.test.tsx \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 433\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m rendered hub wiring\u001b[2m > \u001b[22mhands the cross-room dispute claim from the fixture to the rendered view \u001b[33m433\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/compose-form.test.tsx \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 401\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m compose form\u001b[2m > \u001b[22mlists PATH probes and posts the job on Start \u001b[33m401\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[1m\u001b[7m Failed Tests 1 \u001b[27m\u001b[22m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m tests/harness/submit-turn.test.ts\u001b[2m > \u001b[22msubmitting a turn to an interactive seat\u001b[2m > \u001b[22msubmits the opening job the same way\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [ 'build the vault' ] to deeply equal [ 'build the vault', '\\r' ]\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    \"build the vault\",\u001b[22m\n\u001b[32m-   \"\r\",\u001b[39m\n\u001b[2m  ]\u001b[22m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/harness/submit-turn.test.ts:\u001b[2m125:26\u001b[22m\u001b[39m\n    \u001b[90m123| \u001b[39m\n    \u001b[90m124| \u001b[39m    \u001b[35mawait\u001b[39m \u001b[35mnew\u001b[39m \u001b[33mPromise\u001b[39m((done) \u001b[33m=>\u001b[39m \u001b[34msetTimeout\u001b[39m(done\u001b[33m,\u001b[39m \u001b[34m20\u001b[39m))\u001b[33m;\u001b[39m\n    \u001b[90m125| \u001b[39m    \u001b[34mexpect\u001b[39m(pty\u001b[33m.\u001b[39m\u001b[34mwrites\u001b[39m())\u001b[33m.\u001b[39m\u001b[34mtoEqual\u001b[39m([\u001b[32m'build the vault'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mRETURN\u001b[39m])\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                         \u001b[31m^\u001b[39m\n    \u001b[90m126| \u001b[39m  })\u001b[33m;\u001b[39m\n    \u001b[90m127| \u001b[39m})\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/1]\u23af\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m133 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m2 skipped\u001b[39m\u001b[90m (136)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m1281 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m3 skipped\u001b[39m\u001b[90m (1285)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:27:09\n\u001b[2m   Duration \u001b[22m 190.96s\u001b[2m (transform 11.31s, setup 0ms, collect 21.25s, tests 129.12s, environment 8.29s, prepare 6.68s)\u001b[22m\n\n",
+          "name": "npm test",
+          "note": null,
+          "seconds": 192.66799262491986,
+          "status": "failed"
+        }
+      ],
+      "total_s": 228.2801968329586
+    },
+    {
+      "boot_s": 0.25619275006465614,
+      "cpu": 8,
+      "cpu_online_s": 2.612634167075157,
+      "error": "\ufffd\u001b[39m tests/ui/unsupported-event.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 51\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/session-keys.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 1804\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m driving a mirrored terminal by key\u001b[2m > \u001b[22msends the bytes a real arrow key sends \u001b[33m1256\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m driving a mirrored terminal by key\u001b[2m > \u001b[22mgoes away once the seat has exited \u001b[33m477\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-view.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 2365\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m the run picker as navigation\u001b[2m > \u001b[22mmarks which row is open, so the menu is not a list of identical rows \u001b[33m2264\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/terminal-keyboard.test.tsx \u001b[2m(\u001b[22m\u001b[2m12 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 25\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/env-rail.test.tsx \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 1633\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m pointing the mirror at a repository from the hub\u001b[2m > \u001b[22msends what was pasted \u001b[33m1603\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/board-survives-cli.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 130\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/cards.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 116\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-reset.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 21\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/message-card.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 5\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/message-head.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\n \u001b[32m\u2713\u001b[39m tests/ui/mirror-status.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 40\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/useLog.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 4428\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m useLog\u001b[2m > \u001b[22mloads a fixture log into ordered events \u001b[33m2200\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m useLog\u001b[2m > \u001b[22mappends live SSE events and closes the stream on unmount \u001b[33m2228\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/app.test.tsx \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 406\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m rendered hub wiring\u001b[2m > \u001b[22mhands the cross-room dispute claim from the fixture to the rendered view \u001b[33m406\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/compose-form.test.tsx \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 141\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[1m\u001b[7m Failed Tests 1 \u001b[27m\u001b[22m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m tests/harness/submit-turn.test.ts\u001b[2m > \u001b[22msubmitting a turn to an interactive seat\u001b[2m > \u001b[22msubmits the opening job the same way\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [ 'build the vault' ] to deeply equal [ 'build the vault', '\\r' ]\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    \"build the vault\",\u001b[22m\n\u001b[32m-   \"\r\",\u001b[39m\n\u001b[2m  ]\u001b[22m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/harness/submit-turn.test.ts:\u001b[2m125:26\u001b[22m\u001b[39m\n    \u001b[90m123| \u001b[39m\n    \u001b[90m124| \u001b[39m    \u001b[35mawait\u001b[39m \u001b[35mnew\u001b[39m \u001b[33mPromise\u001b[39m((done) \u001b[33m=>\u001b[39m \u001b[34msetTimeout\u001b[39m(done\u001b[33m,\u001b[39m \u001b[34m20\u001b[39m))\u001b[33m;\u001b[39m\n    \u001b[90m125| \u001b[39m    \u001b[34mexpect\u001b[39m(pty\u001b[33m.\u001b[39m\u001b[34mwrites\u001b[39m())\u001b[33m.\u001b[39m\u001b[34mtoEqual\u001b[39m([\u001b[32m'build the vault'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mRETURN\u001b[39m])\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                         \u001b[31m^\u001b[39m\n    \u001b[90m126| \u001b[39m  })\u001b[33m;\u001b[39m\n    \u001b[90m127| \u001b[39m})\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/1]\u23af\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m133 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m2 skipped\u001b[39m\u001b[90m (136)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m1281 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m3 skipped\u001b[39m\u001b[90m (1285)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:27:12\n\u001b[2m   Duration \u001b[22m 241.33s\u001b[2m (transform 17.56s, setup 0ms, collect 24.71s, tests 160.42s, environment 6.95s, prepare 6.41s)\u001b[22m\n\n",
+      "job_id": "test",
+      "mem_mb": 8192,
+      "ok": false,
+      "sandbox_id": "ZGVza3RvcC1wb29sLWktMDliYTQyZGEzOGU5NzJmOTM6dm1fMDAxMzU2OmNtdGh4N2k1eTAxcGpvMDAxcXo3YWhsYWQ6MTc4ODQ2NzE5OTkyNQ.jNoTzmjpiVa0pAU7VwpjylUAlmQHZjEDuheagAEsdu8",
+      "solari_cost_usd": 0.028387147527770655,
+      "steps": [
+        {
+          "exit_code": 0,
+          "log_tail": "Cloning into '/work/repo'...\n",
+          "name": "actions/checkout@v7",
+          "note": "checkout done by runner",
+          "seconds": 2.8144027079688385,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "v20.20.2\n10.8.2\n",
+          "name": "actions/setup-node@v7",
+          "note": null,
+          "seconds": 2.819524749997072,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation\n\n> crosstalk-ai@0.1.0 postinstall\n> node scripts/fix-node-pty.mjs\n\ncrosstalk: made node_modules/node-pty/prebuilds/darwin-arm64/spawn-helper executable (node-pty ships it 0644)\ncrosstalk: made node_modules/node-pty/prebuilds/darwin-x64/spawn-helper executable (node-pty ships it 0644)\n\nadded 269 packages, and audited 270 packages in 7s\n\n61 packages are looking for funding\n  run `npm fund` for details\n\n7 vulnerabilities (4 moderate, 2 high, 1 critical)\n\nTo address issues that do not require attention, run:\n  npm audit fix\n\nTo address all issues (including breaking changes), run:\n  npm audit fix --force\n\nRun `npm audit` for details.\n",
+          "name": "npm ci",
+          "note": null,
+          "seconds": 9.467430333024822,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "\n> crosstalk-ai@0.1.0 typecheck\n> tsc -p tsconfig.test.json\n\n",
+          "name": "npm run typecheck",
+          "note": null,
+          "seconds": 7.343854165985249,
+          "status": "ok"
+        },
+        {
+          "exit_code": 0,
+          "log_tail": "\n> crosstalk-ai@0.1.0 build\n> tsc -p tsconfig.json && vite build\n\n\u001b[36mvite v6.4.3 \u001b[32mbuilding for production...\u001b[36m\u001b[39m\ntransforming...\n\u001b[32m\u2713\u001b[39m 65 modules transformed.\nrendering chunks...\ncomputing gzip size...\n\u001b[2mdist/ui/\u001b[22m\u001b[32mindex.html                 \u001b[39m\u001b[1m\u001b[2m  0.40 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m \u2502 gzip:  0.27 kB\u001b[22m\n\u001b[2mdist/ui/\u001b[22m\u001b[2massets/\u001b[22m\u001b[35mindex-QcE41RGa.css  \u001b[39m\u001b[1m\u001b[2m 47.54 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m \u2502 gzip:  8.51 kB\u001b[22m\n\u001b[2mdist/ui/\u001b[22m\u001b[2massets/\u001b[22m\u001b[36mindex-CMUMLw7p.js   \u001b[39m\u001b[1m\u001b[2m229.36 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m \u2502 gzip: 71.89 kB\u001b[22m\n\u001b[32m\u2713 built in 1.82s\u001b[39m\n",
+          "name": "npm run build",
+          "note": null,
+          "seconds": 8.009718374931253,
+          "status": "ok"
+        },
+        {
+          "exit_code": 1,
+          "log_tail": "\ufffd\u001b[39m tests/ui/unsupported-event.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 51\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/session-keys.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 1804\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m driving a mirrored terminal by key\u001b[2m > \u001b[22msends the bytes a real arrow key sends \u001b[33m1256\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m driving a mirrored terminal by key\u001b[2m > \u001b[22mgoes away once the seat has exited \u001b[33m477\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-view.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 2365\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m the run picker as navigation\u001b[2m > \u001b[22mmarks which row is open, so the menu is not a list of identical rows \u001b[33m2264\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/terminal-keyboard.test.tsx \u001b[2m(\u001b[22m\u001b[2m12 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 25\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/env-rail.test.tsx \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 1633\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m pointing the mirror at a repository from the hub\u001b[2m > \u001b[22msends what was pasted \u001b[33m1603\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/board-survives-cli.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 130\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/cards.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 116\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/run-reset.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 21\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/message-card.test.tsx \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 5\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/message-head.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\n \u001b[32m\u2713\u001b[39m tests/ui/mirror-status.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 40\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/useLog.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 4428\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m useLog\u001b[2m > \u001b[22mloads a fixture log into ordered events \u001b[33m2200\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m useLog\u001b[2m > \u001b[22mappends live SSE events and closes the stream on unmount \u001b[33m2228\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/app.test.tsx \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 406\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m rendered hub wiring\u001b[2m > \u001b[22mhands the cross-room dispute claim from the fixture to the rendered view \u001b[33m406\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/ui/compose-form.test.tsx \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 141\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[1m\u001b[7m Failed Tests 1 \u001b[27m\u001b[22m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m tests/harness/submit-turn.test.ts\u001b[2m > \u001b[22msubmitting a turn to an interactive seat\u001b[2m > \u001b[22msubmits the opening job the same way\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [ 'build the vault' ] to deeply equal [ 'build the vault', '\\r' ]\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    \"build the vault\",\u001b[22m\n\u001b[32m-   \"\r\",\u001b[39m\n\u001b[2m  ]\u001b[22m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/harness/submit-turn.test.ts:\u001b[2m125:26\u001b[22m\u001b[39m\n    \u001b[90m123| \u001b[39m\n    \u001b[90m124| \u001b[39m    \u001b[35mawait\u001b[39m \u001b[35mnew\u001b[39m \u001b[33mPromise\u001b[39m((done) \u001b[33m=>\u001b[39m \u001b[34msetTimeout\u001b[39m(done\u001b[33m,\u001b[39m \u001b[34m20\u001b[39m))\u001b[33m;\u001b[39m\n    \u001b[90m125| \u001b[39m    \u001b[34mexpect\u001b[39m(pty\u001b[33m.\u001b[39m\u001b[34mwrites\u001b[39m())\u001b[33m.\u001b[39m\u001b[34mtoEqual\u001b[39m([\u001b[32m'build the vault'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mRETURN\u001b[39m])\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                         \u001b[31m^\u001b[39m\n    \u001b[90m126| \u001b[39m  })\u001b[33m;\u001b[39m\n    \u001b[90m127| \u001b[39m})\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/1]\u23af\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m133 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m2 skipped\u001b[39m\u001b[90m (136)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m1281 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m3 skipped\u001b[39m\u001b[90m (1285)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:27:12\n\u001b[2m   Duration \u001b[22m 241.33s\u001b[2m (transform 17.56s, setup 0ms, collect 24.71s, tests 160.42s, environment 6.95s, prepare 6.41s)\u001b[22m\n\n",
+          "name": "npm test",
+          "note": null,
+          "seconds": 244.35707687505055,
+          "status": "failed"
+        }
+      ],
+      "total_s": 277.70035624993034
+    }
+  ]
+}

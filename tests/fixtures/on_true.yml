@@ -1,0 +1,7 @@
+name: Trigger test
+on: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok

@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "solari-ci"
+version = "0.1.0"
+description = "Right-size your GitHub Actions job with evidence: run it on Solari microVMs at 1/2/4/8 vCPU and get the speed-vs-cost curve."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11,<4.0"
+authors = [{ name = "Moaz Essam" }]
+keywords = ["github-actions", "ci", "solari", "microvm"]
+dependencies = ["typer>=0.12", "rich>=13.7", "httpx>=0.27", "pyyaml>=6"]
+
+[project.optional-dependencies]
+chart = ["matplotlib>=3.8"]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "respx>=0.21", "ruff>=0.6"]
+
+[project.scripts]
+solci = "solari_ci.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/moazessam376-dev/solari-ci"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/solari_ci"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+ignore = ["B008", "PYI034", "S110", "S112", "RUF046", "E731"]

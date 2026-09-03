@@ -1,0 +1,36 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    name: Test suite
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      CI: "true"
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - python-version: "3.14"
+            os: ubuntu-latest
+    container:
+      image: python:3.12
+    services:
+      postgres:
+        image: postgres:16
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "${{ matrix.python-version }}"
+        env:
+          PYTHON_VERSION: "${{  matrix.python-version  }}"
+      - run: python -V
+  reusable:
+    uses: ./.github/workflows/reusable.yml
