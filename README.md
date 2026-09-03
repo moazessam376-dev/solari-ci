@@ -2,6 +2,8 @@
 
 Right-size a GitHub Actions job with evidence from Solari microVMs: speed, cost, history, and actionable findings.
 
+Showcase: https://moazessam376-dev.github.io/solari-showcase/
+
 ![Solari CI speed versus cost curve](docs/curve.png)
 
 ## What it does
