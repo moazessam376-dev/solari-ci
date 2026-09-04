@@ -226,7 +226,7 @@ def _apply_if_needed(repo_dir: Path, workflow_rel_path: str, diff: str) -> None:
 def _branch_name(job_id: str) -> str:
     safe_job = re.sub(r"[^A-Za-z0-9_.-]+", "-", job_id).strip("-") or "job"
     stamp = datetime.now().astimezone().strftime("%Y%m%d")
-    return f"solci/right-size-{safe_job}-{stamp}"
+    return f"solci/cpu-size-{safe_job}-{stamp}"
 
 
 def _unique_branch_name(repo_dir: Path, job_id: str) -> str:
@@ -279,7 +279,7 @@ def _open_pr(
     if chart_target.exists():
         files.append(chart_target.relative_to(repo_dir).as_posix())
     _checked_git(["git", "add", *files], repo_dir)
-    _checked_git(["git", "commit", "-m", f"ci: right-size {job_id} from solci evidence"], repo_dir)
+    _checked_git(["git", "commit", "-m", f"ci: set {job_id} CPU size from solci evidence"], repo_dir)
     _checked_git(["git", "push", "-u", "origin", branch], repo_dir)
     result = _run(
         [
@@ -287,7 +287,7 @@ def _open_pr(
             "pr",
             "create",
             "--title",
-            f"ci: right-size {job_id} (solci)",
+            f"ci: set {job_id} CPU size (solci)",
             "--body-file",
             str(body_path),
             "--head",

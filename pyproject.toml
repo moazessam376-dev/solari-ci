@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "solari-ci"
 version = "0.1.0"
-description = "Right-size your GitHub Actions job with evidence: run it on Solari microVMs at 1/2/4/8 vCPU and get the speed-vs-cost curve."
+description = "Measure a GitHub Actions job on Solari microVMs at 1/2/4/8 vCPU and pick the CPU size from the speed curve."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11,<4.0"

@@ -418,12 +418,6 @@ except Exception:
     pass
 """.strip()
 
-# Short aliases make the payload names discoverable without coupling callers to
-# the implementation detail used in the runner.
-PW_PRELOAD = JS_PRELOAD
-PY_PRELOAD = PYTHON_SITECUSTOMIZE
-
-
 @dataclass(frozen=True)
 class BrowserSession:
     """The minimum cloud-browser state needed by a CI step."""

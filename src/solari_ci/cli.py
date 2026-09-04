@@ -24,7 +24,7 @@ from .theme import console, err_console, header, mark, table
 app = typer.Typer(
     add_completion=False,
     rich_markup_mode="rich",
-    help="Right-size GitHub Actions jobs on Solari microVMs.",
+    help="Measure GitHub Actions jobs on Solari microVMs and size them from the curve.",
 )
 
 _SOLARI_KEY = re.compile(r"^slr_live_[A-Za-z0-9_-]{4,}$")

@@ -39,7 +39,7 @@ MARKS: dict[str, str] = {
     "agent": "◆",
 }
 QUESTIONS: dict[str, str] = {
-    "run": "right-size a GitHub Actions job",
+    "run": "measure a GitHub Actions job at several CPU sizes",
     "inspect": "inspect workflow shape, history, and findings",
     "bench": "measure the speed-vs-cost curve",
     "report": "show evidence and recommendations",

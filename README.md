@@ -1,6 +1,6 @@
 # solari-ci
 
-Right-size a GitHub Actions job with evidence from Solari microVMs: speed, cost, history, and actionable findings.
+Measure a GitHub Actions job on Solari microVMs and pick its CPU size from the curve. Reports per-step speed, cost, run history, and static findings.
 
 Showcase: https://moazessam376-dev.github.io/solari-showcase/
 
@@ -14,9 +14,9 @@ Showcase: https://moazessam376-dev.github.io/solari-showcase/
 
 ## Why
 
-GitHub's Actions platform fee is $0.002/minute effective 2026-03-01, and right-sizing with evidence makes
-the trade-off between wall-clock time and compute cost visible before changing a workflow. The
-evidence-first framing is inspired by Blacksmith's [code]smith CI Tuning.
+GitHub's Actions platform fee is $0.002/minute effective 2026-03-01, and measuring the job first makes
+the trade-off between wall-clock time and compute cost visible before changing a workflow. Measuring
+before tuning is inspired by Blacksmith's [code]smith CI Tuning.
 
 ## Install
 
@@ -89,8 +89,8 @@ RECOMMENDATION
   at 100% of its cost. GitHub ubuntu-latest median is 122 s (free on public repos; private-rate reference $0.030/run).
 ```
 
-This is a legitimate and interesting result: the job is not CPU-bound: 191 s at 1 vCPU versus 197 s at
-2 vCPU, so 1 vCPU is the right size at $0.003/run. The 4 and 8 vCPU runs hit the repository's own flaky
+The job is not CPU-bound: 191 s at 1 vCPU versus 197 s at 2 vCPU, so 1 vCPU is the size to use at
+$0.003/run. The 4 and 8 vCPU runs hit the repository's own flaky
 PTY test (`tests/harness/submit-turn.test.ts`) at the same point, so their totals are excluded from the
 recommendation. See the per-step table in `docs/crosstalk.md` for the full log tail.
 
@@ -127,6 +127,8 @@ A cloud-browser session can drop after roughly 10 minutes. solci keeps the scope
 test step and releases it in cleanup. Browser usage is billed separately at `$0.10/hour` on the Starter
 plan; the terminal and Markdown reports show the session count, seconds, and cost for each CPU size.
 
+A full report from a real cloud-browser run is in [docs/cloud-browser-demo.md](docs/cloud-browser-demo.md).
+
 ## Agent mode
 
 `solci agent` gathers the inspect evidence, measures the selected job across the requested CPU sizes,
@@ -150,7 +152,9 @@ access to the repository; there is no fork fallback.
 For safety, the agent only ever edits the single selected file under `.github/workflows`. A human always
 reviews and merges the pull request; solci never merges anything itself.
 
-Real example: [Gym-App PR #111](https://github.com/moazessam376-dev/Gym-App/pull/111) was opened by `solci agent moazessam376-dev/Gym-App --job typecheck --cpu 1,2,4 --pr`. From the 67/48/45 s curve and a 35% historical failure rate, the model added `timeout-minutes: 15` and a `concurrency` group with `cancel-in-progress`, and nothing else.
+Real example: [Gym-App PR #111](https://github.com/moazessam376-dev/Gym-App/pull/111) was opened by `solci agent moazessam376-dev/Gym-App --job typecheck --cpu 1,2,4 --pr`. From the 67/48/45 s curve and a 35% historical failure rate, the model added `timeout-minutes: 15` and a `concurrency` group with `cancel-in-progress`, and nothing else. Gym-App is a private repository, so that link resolves only for its owner.
+
+Public example: [crosstalk PR #43](https://github.com/moazessam376-dev/crosstalk/pull/43) was opened by `solci agent moazessam376-dev/crosstalk --job test --cpu 1,2 --pr`. That run measured 196.2 s at 1 vCPU and 192.1 s at 2. An earlier run of the same job measured 191 s and 197 s: the two sizes swap places across runs and stay within 3% of each other, which is what a job that is not CPU-bound looks like. The model proposed `timeout-minutes: 15` and nothing else. Full dry-run output is in [docs/agent-demo.md](docs/agent-demo.md).
 
 If every sandbox size in the sweep fails (for example a transient 429), the agent refuses to propose a
 change from history alone and exits with code 4. Pass `--allow-history-only` to proceed anyway.
@@ -206,7 +210,6 @@ priority over the runner's baseline `PATH` instead of being clobbered by it.
 | `BROWSER_JOB` | info | Browser tests install a local browser; use `--cloud-browser` for Solari cloud Chrome. |
 
 ## Solari notes
-
 
 Facts learned running this tool against real jobs: the Solari `exec` API call itself takes up to roughly 28
 seconds wall-clock, so solci clamps its own request timeout to 24 seconds and polls detached scripts via a
