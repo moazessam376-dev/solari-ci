@@ -205,6 +205,8 @@ priority over the runner's baseline `PATH` instead of being clobbered by it.
 
 ## Solari notes
 
+Full list with repro steps: [docs/solari-findings.md](docs/solari-findings.md).
+
 Facts learned running this tool against real jobs: the Solari `exec` API call itself takes up to roughly 28
 seconds wall-clock, so solci clamps its own request timeout to 24 seconds and polls detached scripts via a
 log/exit-file pattern instead of blocking on `exec`; vCPU hot-plug after boot is typically observed within
