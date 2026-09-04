@@ -74,3 +74,20 @@ def test_markdown_and_json_outputs_are_complete(tmp_path: Path) -> None:
     payload = json.loads(json_path.read_text(encoding="utf-8"))
     assert payload["job_id"] == "test"
     assert payload["runs"][1]["cpu"] == 2
+
+
+def test_browser_usage_is_reported_per_size() -> None:
+    curve = make_curve()
+    curve.runs[0].browser_seconds = 12.0
+    curve.runs[0].browser_cost_usd = 0.000333
+    curve.runs[0].browser_session_ids = ["session-1"]
+
+    output = StringIO()
+    report.render_terminal(curve, Console(file=output, color_system=None, width=160))
+
+    assert "BROWSER" in output.getvalue()
+    markdown = report.to_markdown(curve)
+    assert "## Browser" in markdown
+    assert "session-1" not in markdown
+    assert "12.0 s" in markdown
+    assert "$0.0003" in markdown

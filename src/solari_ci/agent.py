@@ -102,6 +102,7 @@ def build_curve(
     results: list[RunResult],
     baseline: JobBaseline | None,
     private: bool = True,
+    cloud_browser: bool = False,
 ) -> Curve:
     """Build the shared measurement model used by run and agent commands."""
     github_cost = None
@@ -114,7 +115,12 @@ def build_curve(
         baseline=baseline,
         github_cost_usd=github_cost,
         recommendation=cost.recommend(results, baseline, private=private),
-        findings=findings.analyze(selected_workflow, selected_job, baseline),
+        findings=findings.analyze(
+            selected_workflow,
+            selected_job,
+            baseline,
+            cloud_browser=cloud_browser,
+        ),
     )
 
 
@@ -128,21 +134,31 @@ async def run_sweep(
     concurrency: int,
     keep: bool = False,
     on_event: EventCallback | None = None,
+    *,
+    cloud_browser: bool = False,
+    expose_port: int | None = None,
 ) -> list[RunResult]:
     """Run one selected job at each requested CPU size."""
     repo = RepoSpec(owner_repo, ref, f"https://github.com/{owner_repo}", private=True)
     memory = lambda cpu: mem_mb if mem_mb is not None else max(2048, cpu * 1024)
     async with SolariClient() as client:
+        run_kwargs: dict[str, Any] = {
+            "mem_mb_for": memory,
+            "concurrency": concurrency,
+            "plan": plan,
+            "keep": keep,
+            "on_event": on_event,
+        }
+        if cloud_browser:
+            run_kwargs["cloud_browser"] = True
+        if expose_port is not None:
+            run_kwargs["expose_port"] = expose_port
         return await runner.run_sizes(
             client,
             job,
             repo,
             sizes,
-            mem_mb_for=memory,
-            concurrency=concurrency,
-            plan=plan,
-            keep=keep,
-            on_event=on_event,
+            **run_kwargs,
         )
 
 
@@ -304,6 +320,8 @@ async def run_agent(
     runs: int = 20,
     mem_mb: int | None = None,
     allow_history_only: bool = False,
+    cloud_browser: bool = False,
+    expose_port: int | None = None,
 ) -> AgentResult:
     """Measure a job, ask a brain for a workflow-only proposal, and optionally open a PR."""
     workflows = workflow.fetch_remote(owner_repo, ref=base_ref)
@@ -318,6 +336,11 @@ async def run_agent(
             "solci runs steps natively in a microVM"
         )
 
+    sweep_kwargs: dict[str, Any] = {"on_event": on_event}
+    if cloud_browser:
+        sweep_kwargs["cloud_browser"] = True
+    if expose_port is not None:
+        sweep_kwargs["expose_port"] = expose_port
     results = await run_sweep(
         expanded_job,
         owner_repo,
@@ -326,7 +349,7 @@ async def run_agent(
         mem_mb,
         plan,
         concurrency,
-        on_event=on_event,
+        **sweep_kwargs,
     )
     if not any(result.ok for result in results) and not allow_history_only:
         reasons = "; ".join(
@@ -337,7 +360,14 @@ async def run_agent(
             "Pass --allow-history-only to proceed without a fresh CPU sweep."
         )
 
-    curve = build_curve(owner_repo, selected_workflow, expanded_job, results, baseline)
+    curve = build_curve(
+        owner_repo,
+        selected_workflow,
+        expanded_job,
+        results,
+        baseline,
+        cloud_browser=cloud_browser,
+    )
     evidence_md = report.to_markdown(curve)
     root = Path(tempfile.mkdtemp(prefix="solci-agent-"))
     try:

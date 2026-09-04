@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import re
 from typing import Any
 
+from . import cloudbrowser
 from .models import Finding, Job, JobBaseline, Step, Workflow
 
 _VERSION_REF = re.compile(r"^v?\d+(?:\.\d+){0,2}$")
@@ -97,7 +99,13 @@ def _big_runner_labels(job: Job) -> list[str]:
     return [label for label in labels if _BIG_RUNNER_LABEL.search(label)]
 
 
-def analyze(wf: Workflow, job: Job, baseline: JobBaseline | None) -> list[Finding]:
+def analyze(
+    wf: Workflow,
+    job: Job,
+    baseline: JobBaseline | None,
+    *,
+    cloud_browser: bool = False,
+) -> list[Finding]:
     """Generate deterministic static findings for one workflow job."""
     findings: list[Finding] = []
     has_cache_step = any(_action_prefix(step.uses) == "actions/cache" for step in job.steps)
@@ -268,6 +276,31 @@ def analyze(wf: Workflow, job: Job, baseline: JobBaseline | None) -> list[Findin
                 job,
                 None,
                 "Re-run with the other matrix values explicitly if you need results for every cell.",
+            )
+        )
+
+    browser_text = "\n".join(
+        [step.run for step in job.steps if step.run is not None]
+        + [json.dumps(wf.raw, default=str)]
+    )
+    browser_tools = cloudbrowser.browser_tools_in_text(browser_text)
+    if browser_tools and not cloud_browser:
+        browser_step = next(
+            (
+                step.name
+                for step in job.steps
+                if step.run is not None and cloudbrowser.browser_tools_in_text(step.run)
+            ),
+            None,
+        )
+        findings.append(
+            _new_finding(
+                "info",
+                "BROWSER_JOB",
+                "this job installs a browser in CI; run with --cloud-browser to use Solari cloud Chrome instead",
+                job,
+                browser_step,
+                "Pass --cloud-browser to route Playwright, Puppeteer, or browser-use to Solari cloud Chrome.",
             )
         )
 

@@ -150,6 +150,23 @@ def _step_rows(curve: Curve) -> list[list[str]]:
     return [[name, *[_step_value(items.get(name)) for items in by_run]] for name in names]
 
 
+def _browser_rows(curve: Curve) -> list[list[str]]:
+    rows: list[list[str]] = []
+    for run in sorted(curve.runs, key=lambda item: item.cpu):
+        if not run.browser_session_ids and run.browser_seconds <= 0:
+            continue
+        count = len(run.browser_session_ids)
+        rows.append(
+            [
+                f"{run.cpu} vCPU",
+                str(count),
+                _seconds(run.browser_seconds),
+                _money(run.browser_cost_usd),
+            ]
+        )
+    return rows
+
+
 def _findings_rows(findings: list[Finding]) -> list[list[str]]:
     return [
         [finding.severity, finding.code, finding.step or "job", finding.message, finding.suggestion]
@@ -194,6 +211,19 @@ def render_terminal(curve: Curve, console: Console = default_console) -> None:
             f"{baseline_cost}/run, {curve.baseline.monthly_runs_est:,.1f} runs/month.[/muted]"
         )
     _render_ascii_chart(curve, console)
+
+    browser_rows = _browser_rows(curve)
+    if browser_rows:
+        console.print("[hdr]BROWSER[/hdr]")
+        browser_table = _table(
+            ("SIZE", "left"),
+            ("SESSIONS", "right"),
+            ("SECONDS", "right"),
+            ("COST", "right"),
+        )
+        for row in browser_rows:
+            browser_table.add_row(*row)
+        console.print(browser_table)
 
     console.print("[hdr]PER-STEP TIMING[/hdr]")
     runs = sorted(curve.runs, key=lambda item: item.cpu)
@@ -255,6 +285,9 @@ def to_markdown(curve: Curve) -> str:
 
     chart_rows = [[label, _seconds(seconds), price] for label, seconds, price in _chart_rows(curve)]
     lines.extend(["", "## Total time", "", _markdown_table(["Size", "Total", "Cost/run"], chart_rows)])
+    browser_rows = _browser_rows(curve)
+    if browser_rows:
+        lines.extend(["", "## Browser", "", _markdown_table(["Size", "Sessions", "Seconds", "Cost"], browser_rows)])
     step_headers = ["Step", *[f"{run.cpu} vCPU" for run in sorted(curve.runs, key=lambda item: item.cpu)]]
     lines.extend(["", "## Per-step timing", "", _markdown_table(step_headers, _step_rows(curve))])
     lines.extend(

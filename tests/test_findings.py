@@ -198,3 +198,15 @@ def test_matrix_note_positive_and_negative_cases() -> None:
     negative_job = make_job(matrix=None)
     negative = analyze(make_workflow(), negative_job, None)
     assert_absent(negative, "MATRIX_NOTE")
+
+
+def test_browser_job_finding_is_suppressed_when_cloud_browser_is_enabled() -> None:
+    job = make_job(steps=[make_step(name="E2E", run="npx playwright test")])
+
+    without_cloud = analyze(make_workflow(), job, None)
+    with_cloud = analyze(make_workflow(), job, None, cloud_browser=True)
+
+    finding = next(item for item in without_cloud if item.code == "BROWSER_JOB")
+    assert finding.severity == "info"
+    assert "--cloud-browser" in finding.message
+    assert_absent(with_cloud, "BROWSER_JOB")

@@ -108,6 +108,24 @@ $ echo $?
 3
 ```
 
+## Cloud Chrome for browser jobs
+
+Pass `--cloud-browser` to `solci run` or `solci agent` when a job uses Playwright (including
+`@playwright/test` or `pytest-playwright`), Puppeteer, or browser-use. solci creates a Solari cloud Chrome
+session for each browser test step, injects the CDP endpoint through environment variables and preloads, and
+releases the session after the step. The checked out repository is never edited. `npx playwright install`
+and `playwright install` steps are reported as skipped because Chromium is already provided by Solari. Cypress
+is detected but continues to use its local browser, because Cypress cannot attach to this remote CDP session.
+
+For a Playwright `webServer` config with a literal `port` or localhost `url`, solci maps
+`http://localhost:N` and `http://127.0.0.1:N` to the sandbox preview URL. Use `--expose-port N` for a
+server that is not declared in the Playwright config. This localhost mapping is best effort, and the cloud
+browser cannot reach the sandbox's loopback address directly without it.
+
+A cloud-browser session can drop after roughly 10 minutes. solci keeps the scope to one session per browser
+test step and releases it in cleanup. Browser usage is billed separately at `$0.10/hour` on the Starter
+plan; the terminal and Markdown reports show the session count, seconds, and cost for each CPU size.
+
 ## Agent mode
 
 `solci agent` gathers the inspect evidence, measures the selected job across the requested CPU sizes,
@@ -180,6 +198,7 @@ priority over the runner's baseline `PATH` instead of being clobbered by it.
 | `BIG_RUNNER` | medium | The job requests a large `-cores`/`vcpu` runner (GitHub or Blacksmith). |
 | `SERVICES_UNSUPPORTED` | info | The job uses Docker or service containers unavailable in Solari. |
 | `MATRIX_NOTE` | info | Only the first matrix cell was measured. |
+| `BROWSER_JOB` | info | Browser tests install a local browser; use `--cloud-browser` for Solari cloud Chrome. |
 
 ## Solari notes
 

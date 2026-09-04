@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 import httpx
 
@@ -99,6 +100,51 @@ class SolariClient:
         response = await client.delete(f"/sandboxes/{sandbox_id}")
         if response.status_code != 404 and response.is_error:
             raise self._error("DELETE", f"/sandboxes/{sandbox_id}", response)
+
+    @staticmethod
+    def _derive_cdp_url(ws_endpoint: str) -> str:
+        marker = "/ws/"
+        index = ws_endpoint.find(marker)
+        if index >= 0:
+            return f"{ws_endpoint[:index]}/cdp/{ws_endpoint[index + len(marker):]}"
+        return ws_endpoint
+
+    def _default_cdp_url(self, session_id: str) -> str:
+        parsed = urlsplit(self.base_url)
+        scheme = "wss" if parsed.scheme == "https" else "ws"
+        return urlunsplit((scheme, parsed.netloc, f"/cdp/{session_id}", "", ""))
+
+    async def create_session(self) -> dict[str, str]:
+        """Create a cloud Chrome session and return its id and CDP endpoint."""
+        body = await self._request("POST", "/sessions")
+        if not isinstance(body, dict) or not body.get("sessionId"):
+            raise SolariError("POST /sessions returned a response without sessionId", body=body)
+        session_id = str(body["sessionId"])
+        cdp_url = body.get("cdpEndpoint")
+        if not isinstance(cdp_url, str) or not cdp_url:
+            ws_endpoint = body.get("wsEndpoint")
+            if isinstance(ws_endpoint, str) and ws_endpoint:
+                cdp_url = self._derive_cdp_url(ws_endpoint)
+            else:
+                cdp_url = self._default_cdp_url(session_id)
+        return {"sessionId": session_id, "cdpUrl": cdp_url}
+
+    async def delete_session(self, session_id: str) -> None:
+        """Release a cloud Chrome session; an already-gone session is harmless."""
+        client = await self._client()
+        response = await client.delete(f"/sessions/{session_id}")
+        if response.status_code != 404 and response.is_error:
+            raise self._error("DELETE", f"/sessions/{session_id}", response)
+
+    async def sandbox_port_url(self, sandbox_id: str, port: int) -> str:
+        """Return the public preview URL for a port exposed by a sandbox."""
+        body = await self._request("GET", f"/sandboxes/{sandbox_id}/ports/{port}")
+        if not isinstance(body, dict) or not isinstance(body.get("url"), str) or not body["url"]:
+            raise SolariError(
+                f"GET /sandboxes/{sandbox_id}/ports/{port} returned no url",
+                body=body,
+            )
+        return body["url"]
 
     async def list_sandboxes(self) -> list[dict]:
         body = await self._request("GET", "/sandboxes")

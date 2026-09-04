@@ -405,7 +405,9 @@ def _parse_cpu(value: str) -> list[int]:
 def _run_progress(event: dict[str, Any]) -> None:
     event_name = event.get("event")
     cpu = event.get("cpu", "?")
-    if event_name == "sandbox_created":
+    if event_name == "browser_warning":
+        console.print(f"  [warn]browser[/warn] {escape(str(event.get('message', '')))}")
+    elif event_name == "sandbox_created":
         console.print(f"  [accent]{mark('run')}[/accent] {cpu} vCPU  created")
     elif event_name == "cpu_online":
         elapsed = float(event.get("cpu_online_s", 0))
@@ -435,6 +437,8 @@ async def _run_curve(
     plan: str,
     concurrency: int,
     keep: bool,
+    cloud_browser: bool,
+    expose_port: int | None,
 ) -> list[RunResult]:
     return await agent_layer.run_sweep(
         job,
@@ -446,6 +450,8 @@ async def _run_curve(
         concurrency,
         keep,
         on_event=_run_progress,
+        cloud_browser=cloud_browser,
+        expose_port=expose_port,
     )
 
 
@@ -468,6 +474,18 @@ def run(
     chart_path: Path | None = typer.Option(None, "--chart", help="Write an optional PNG chart to a path."),
     keep: bool = typer.Option(False, "--keep", help="Keep the Solari sandboxes after the run."),
     no_history: bool = typer.Option(False, "--no-history", help="Skip the GitHub Actions history lookup."),
+    cloud_browser: bool = typer.Option(
+        False,
+        "--cloud-browser",
+        help="Use Solari cloud Chrome for Playwright, Puppeteer, and browser-use steps.",
+    ),
+    expose_port: int | None = typer.Option(
+        None,
+        "--expose-port",
+        min=1,
+        max=65535,
+        help="Expose a sandbox localhost port to cloud Chrome.",
+    ),
 ) -> None:
     """Run one GitHub Actions job at several Solari CPU sizes."""
     load_env()
@@ -496,7 +514,20 @@ def run(
             f"[accent]{mark('run')}[/accent] [muted]"
             f"{escape(target)}:{escape(expanded_job.id)}[/muted]"
         )
-        results = asyncio.run(_run_curve(expanded_job, target, ref, sizes, mem, plan, concurrency, keep))
+        results = asyncio.run(
+            _run_curve(
+                expanded_job,
+                target,
+                ref,
+                sizes,
+                mem,
+                plan,
+                concurrency,
+                keep,
+                cloud_browser,
+                expose_port,
+            )
+        )
         curve = agent_layer.build_curve(
             target,
             selected_workflow,
@@ -504,6 +535,7 @@ def run(
             results,
             baseline,
             private=private is not False,
+            cloud_browser=cloud_browser,
         )
         report.render_terminal(curve, console)
         if json_path is not None:
@@ -549,6 +581,18 @@ def agent(
     open_pr: bool = typer.Option(False, "--pr", help="Open a pull request for the proposal."),
     dry_run: bool = typer.Option(False, "--dry-run", help="Clone and propose without publishing anything."),
     base: str = typer.Option("main", "--base", help="Base branch to clone and measure."),
+    cloud_browser: bool = typer.Option(
+        False,
+        "--cloud-browser",
+        help="Use Solari cloud Chrome for Playwright, Puppeteer, and browser-use steps.",
+    ),
+    expose_port: int | None = typer.Option(
+        None,
+        "--expose-port",
+        min=1,
+        max=65535,
+        help="Expose a sandbox localhost port to cloud Chrome.",
+    ),
     allow_history_only: bool = typer.Option(
         False,
         "--allow-history-only",
@@ -585,6 +629,8 @@ def agent(
                 runs=runs,
                 mem_mb=mem,
                 allow_history_only=allow_history_only,
+                cloud_browser=cloud_browser,
+                expose_port=expose_port,
             )
         )
         if result.pr_url:

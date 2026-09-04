@@ -99,6 +99,9 @@ class RunResult(_Model):
     ok: bool = False
     solari_cost_usd: float = 0.0
     error: str | None = None
+    browser_seconds: float = 0.0
+    browser_cost_usd: float = 0.0
+    browser_session_ids: list[str] = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass

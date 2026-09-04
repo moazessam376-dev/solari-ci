@@ -16,7 +16,7 @@ from dataclasses import dataclass, replace
 from typing import Any
 from urllib.parse import quote, urlsplit, urlunsplit
 
-from . import ledger, shims
+from . import cloudbrowser, ledger, shims
 from .client import SolariClient
 from .models import Job, RepoSpec, RunResult, Step, StepResult
 
@@ -24,6 +24,7 @@ WORKSPACE = "/work/repo"
 EXEC_TIMEOUT_MS = 24_000
 CPU_ONLINE_TIMEOUT_S = 40.0
 CPU_POLL_S = 1.0
+BROWSER_COST_USD_PER_HOUR = 0.10
 
 PLANS: dict[str, dict[str, float]] = {
     "free": {"vcpu_hour": 0.0525, "gb_hour": 0.0165},
@@ -34,6 +35,11 @@ PLANS: dict[str, dict[str, float]] = {
 
 _SCRIPT_IDS = itertools.count(1)
 _INTEGER_LINE = re.compile(r"^-?\d+$")
+_BROWSER_RUN = re.compile(
+    r"\b(?:playwright|pytest|npm\s+(?:run\s+)?test|npx|pnpm\s+(?:run\s+)?test|"
+    r"yarn\s+(?:run\s+)?test|vitest|jest|browser-use|python(?:3)?)\b",
+    re.IGNORECASE,
+)
 EventCallback = Callable[[dict[str, Any]], Any]
 OutputCallback = Callable[[str], Any]
 
@@ -333,6 +339,159 @@ def _result_error(result: StepResult) -> str:
     return result.note or result.log_tail or f"step {result.name} failed"
 
 
+def _browser_install_step(script: str | None) -> bool:
+    if not script:
+        return False
+    return re.search(r"\b(?:npx\s+)?playwright\s+install(?:\s|$)", script, re.IGNORECASE) is not None
+
+
+def _needs_cloud_browser(step: Step) -> bool:
+    return step.run is not None and not _browser_install_step(step.run) and _BROWSER_RUN.search(step.run) is not None
+
+
+async def _detect_repo_browser_tools(client: SolariClient, sandbox_id: str) -> set[str]:
+    """Read dependency manifests inside the sandbox without changing them."""
+    manifest_command = "if [ -f /work/repo/package.json ]; then cat /work/repo/package.json; fi"
+    try:
+        response = await client.exec(
+            sandbox_id,
+            "sh",
+            ["-c", manifest_command],
+            timeout_ms=EXEC_TIMEOUT_MS,
+            cwd=None,
+        )
+    except Exception:  # noqa: BLE001 - dependency inspection is advisory
+        return set()
+    output = response.get("stdout", "") if isinstance(response, dict) else ""
+    package_text = str(output)
+    return cloudbrowser.detect_browser_tools({"package.json": package_text})
+
+
+async def _write_browser_preloads(client: SolariClient, sandbox_id: str) -> None:
+    """Upload browser hooks into /tmp without changing the checked-out repo."""
+    payloads = {
+        "/tmp/solci/pw-preload.cjs": cloudbrowser.JS_PRELOAD,
+        "/tmp/solci/py-preload/sitecustomize.py": cloudbrowser.PYTHON_SITECUSTOMIZE,
+    }
+    commands = ["mkdir -p /tmp/solci/py-preload"]
+    for path, contents in payloads.items():
+        encoded = base64.b64encode(contents.encode("utf-8")).decode("ascii")
+        commands.append(
+            f"printf '%s' {shlex.quote(encoded)} | base64 -d > {shlex.quote(path)}"
+        )
+    response = await client.exec(
+        sandbox_id,
+        "sh",
+        ["-c", " && ".join(commands)],
+        timeout_ms=EXEC_TIMEOUT_MS,
+        cwd=None,
+    )
+    exit_code = _response_exit_code(response)
+    if exit_code not in (None, 0):
+        raise RuntimeError(f"browser preload upload failed with exit code {exit_code}")
+
+
+async def _browser_base_url_map(
+    client: SolariClient,
+    sandbox_id: str,
+    expose_port: int | None,
+) -> dict[str, str]:
+    """Map sandbox localhost URLs to public preview URLs when possible."""
+    ports: set[int] = set()
+    if expose_port is not None:
+        ports.add(expose_port)
+    config_command = (
+        "for path in /work/repo/playwright.config.ts /work/repo/playwright.config.js "
+        "/work/repo/playwright.config.mjs; do "
+        "if [ -f \"$path\" ]; then printf '\\n'; sed -n '1,240p' \"$path\"; fi; "
+        "done"
+    )
+    try:
+        response = await client.exec(
+            sandbox_id,
+            "sh",
+            ["-c", config_command],
+            timeout_ms=EXEC_TIMEOUT_MS,
+            cwd=None,
+        )
+        output = response.get("stdout", "") if isinstance(response, dict) else ""
+        ports.update(cloudbrowser.detect_playwright_ports(str(output)))
+    except Exception:  # noqa: BLE001 - localhost mapping is best effort
+        pass
+
+    mapping: dict[str, str] = {}
+    for port in sorted(ports):
+        try:
+            preview_url = await client.sandbox_port_url(sandbox_id, port)
+        except Exception:  # noqa: BLE001 - keep cloud-browser runs usable without mapping
+            continue
+        preview_url = preview_url.rstrip("/")
+        for host in ("localhost", "127.0.0.1"):
+            mapping[f"http://{host}:{port}"] = preview_url
+    return mapping
+
+
+def _browser_note(seconds: float, session_count: int = 1) -> str:
+    cost = seconds / 3600 * BROWSER_COST_USD_PER_HOUR
+    noun = "session" if session_count == 1 else "sessions"
+    return f"cloud browser: {session_count} {noun}, {seconds:.1f}s, ${cost:.4f}"
+
+
+async def _run_browser_step(
+    client: SolariClient,
+    sandbox_id: str,
+    script: StepScript,
+    base_url_map: dict[str, str],
+    *,
+    timeout_s: float,
+) -> tuple[StepResult, float, float, list[str]]:
+    """Run one step with one browser session and release it in all cases."""
+    session: cloudbrowser.BrowserSession | None = None
+    session_started = time.monotonic()
+    session_seconds = 0.0
+    session_cost = 0.0
+    session_ids: list[str] = []
+    try:
+        session = await cloudbrowser.open_session(client)
+        session_ids.append(session.session_id)
+        browser_script = replace(
+            script,
+            env={**script.env, **cloudbrowser.browser_env(session.cdp_url, base_url_map)},
+        )
+        result = await run_step(
+            client,
+            sandbox_id,
+            browser_script,
+            timeout_s=timeout_s,
+            on_output=None,
+        )
+    except Exception as exc:  # noqa: BLE001 - turn provisioning failures into step results
+        elapsed = max(0.0, time.monotonic() - session_started)
+        result = StepResult(
+            script.name,
+            "failed",
+            None,
+            elapsed,
+            str(exc)[-4000:],
+            f"cloud browser failed: {exc}",
+        )
+    finally:
+        if session is not None:
+            try:
+                await cloudbrowser.close_session(client, session.session_id)
+            except Exception as exc:  # noqa: BLE001 - surface a release failure in the step
+                detail = f"cloud browser release failed: {exc}"
+                result.note = f"{result.note}; {detail}" if result.note else detail
+                if result.status == "ok":
+                    result.status = "failed"
+                    result.exit_code = None
+            session_seconds = max(0.0, time.monotonic() - session_started)
+            session_cost = session_seconds / 3600 * BROWSER_COST_USD_PER_HOUR
+            browser_note = _browser_note(session_seconds)
+            result.note = f"{result.note}; {browser_note}" if result.note else browser_note
+    return result, session_seconds, session_cost, session_ids
+
+
 async def _clone_repository(
     client: SolariClient,
     sandbox_id: str,
@@ -360,6 +519,8 @@ async def run_job(
     plan: str = "starter",
     keep: bool = False,
     on_event: EventCallback | None = None,
+    cloud_browser: bool = False,
+    expose_port: int | None = None,
 ) -> RunResult:
     """Run one job, cleaning up its sandbox unless ``keep`` is true."""
     started = time.monotonic()
@@ -371,6 +532,9 @@ async def run_job(
     job_ok = False
     cpu_note: str | None = None
     total_s = 0.0
+    browser_seconds = 0.0
+    browser_cost_usd = 0.0
+    browser_session_ids: list[str] = []
 
     try:
         boot_started = time.monotonic()
@@ -391,6 +555,23 @@ async def run_job(
         if clone_result.status != "ok":
             error = _result_error(clone_result)
 
+        base_url_map: dict[str, str] = {}
+        cypress_detected = False
+        if cloud_browser and clone_result.status == "ok":
+            cypress_detected = "cypress" in await _detect_repo_browser_tools(client, sandbox_id)
+            if cypress_detected:
+                await _notify(
+                    on_event,
+                    {
+                        "event": "browser_warning",
+                        "message": (
+                            "Cypress cannot use Solari cloud Chrome; running Cypress locally in the sandbox"
+                        ),
+                    },
+                )
+            await _write_browser_preloads(client, sandbox_id)
+            base_url_map = await _browser_base_url_map(client, sandbox_id, expose_port)
+
         job_ok = error is None
         for step in job.steps:
             condition_note = _condition_note(step)
@@ -401,20 +582,59 @@ async def run_job(
             elif step.uses and step.uses.split("@", 1)[0] == "actions/checkout":
                 checkout_recorded = True
                 step_result = replace(clone_result, name=step.name, note="checkout done by runner")
+            elif cloud_browser and _browser_install_step(step.run):
+                step_result = StepResult(
+                    step.name,
+                    "ok",
+                    None,
+                    0.0,
+                    "",
+                    "playwright install skipped: Solari cloud Chrome is already provisioned",
+                )
             else:
                 translated, skip_note = _translate_step(job, step, repo, cpu)
                 if translated is None:
                     step_result = StepResult(step.name, "ok", None, 0.0, "", skip_note)
                 else:
+                    if cloud_browser:
+                        translated = replace(
+                            translated,
+                            env={
+                                **translated.env,
+                                "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1",
+                                "PUPPETEER_SKIP_DOWNLOAD": "1",
+                            },
+                        )
                     await _notify(on_event, {"event": "step_started", "step": step.name, "cpu": cpu})
                     timeout_s = step.timeout_minutes * 60 if step.timeout_minutes is not None else 1800
-                    step_result = await run_step(
-                        client,
-                        sandbox_id,
-                        translated,
-                        timeout_s=timeout_s,
-                        on_output=None,
-                    )
+                    if cloud_browser and _needs_cloud_browser(step) and not (
+                        cypress_detected
+                        and step.run is not None
+                        and re.search(r"\bcypress\b", step.run, re.IGNORECASE)
+                    ):
+                        (
+                            step_result,
+                            step_browser_seconds,
+                            step_browser_cost,
+                            step_browser_session_ids,
+                        ) = await _run_browser_step(
+                            client,
+                            sandbox_id,
+                            translated,
+                            base_url_map,
+                            timeout_s=timeout_s,
+                        )
+                        browser_seconds += step_browser_seconds
+                        browser_cost_usd += step_browser_cost
+                        browser_session_ids.extend(step_browser_session_ids)
+                    else:
+                        step_result = await run_step(
+                            client,
+                            sandbox_id,
+                            translated,
+                            timeout_s=timeout_s,
+                            on_output=None,
+                        )
                     await _notify(
                         on_event,
                         {
@@ -481,6 +701,9 @@ async def run_job(
         ok=job_ok,
         solari_cost_usd=cost,
         error=error,
+        browser_seconds=browser_seconds,
+        browser_cost_usd=browser_cost_usd,
+        browser_session_ids=browser_session_ids,
     )
     await _notify(
         on_event,
@@ -509,6 +732,8 @@ async def run_sizes(
     plan: str = "starter",
     keep: bool = False,
     on_event: EventCallback | None = None,
+    cloud_browser: bool = False,
+    expose_port: int | None = None,
 ) -> list[RunResult]:
     """Run each requested CPU size with bounded concurrency and isolated failures."""
     if concurrency < 1:
@@ -528,6 +753,10 @@ async def run_sizes(
                 }
                 if keep:
                     run_kwargs["keep"] = True
+                if cloud_browser:
+                    run_kwargs["cloud_browser"] = True
+                if expose_port is not None:
+                    run_kwargs["expose_port"] = expose_port
                 return await run_job(client, job, repo, **run_kwargs)
             except Exception as exc:  # noqa: BLE001 - isolate one size from its siblings
                 return RunResult(
