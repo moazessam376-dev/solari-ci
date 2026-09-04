@@ -82,8 +82,9 @@ Rules:
 - Justify every change with the specific measured number from the evidence that motivates it.
 - If the evidence does not justify any change, say so explicitly and make no edit. An empty diff is
   a valid and good outcome.
-- Include any unified diff in a fenced `diff` code block in your response, and explain the rationale
-  for the change before the final summary line.
+- If you are editing a local checkout, edit the workflow file directly on disk rather than pasting a
+  unified diff into your response. Only include a fenced `diff` code block if you are not able to edit
+  the file directly, and explain the rationale for the change before the final summary line.
 - End your final response with exactly one line in the form `SUMMARY: ...`.
 
 MEASURED EVIDENCE

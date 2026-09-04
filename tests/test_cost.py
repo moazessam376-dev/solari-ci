@@ -81,6 +81,18 @@ def test_recommend_chooses_lowest_cpu_within_ten_percent_and_mentions_baseline()
     assert "GitHub" not in without_baseline
 
 
+def test_recommend_reports_single_measured_size() -> None:
+    runs = [result("job", 2, 215, 0.0055)]
+    expected = "Only one size measured (2 vCPU: 215 s for $0.0055 per run); run with more --cpu sizes to compare."
+
+    assert recommend(runs, None) == expected
+
+    baseline = JobBaseline("job", 10, 70, 100, 0.1, "ubuntu-latest", 20)
+    assert recommend(runs, baseline) == (
+        f"{expected} GitHub ubuntu-latest median is 70 s ($0.020/run)."
+    )
+
+
 def test_recommend_explains_when_no_successful_runs_exist() -> None:
     assert recommend([result("job", 2, 100, 0.04, ok=False)], None) == (
         "No successful runs were available to recommend from."

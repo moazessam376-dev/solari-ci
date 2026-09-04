@@ -116,6 +116,7 @@ session for each browser test step, injects the CDP endpoint through environment
 releases the session after the step. The checked out repository is never edited. `npx playwright install`
 and `playwright install` steps are reported as skipped because Chromium is already provided by Solari. Cypress
 is detected but continues to use its local browser, because Cypress cannot attach to this remote CDP session.
+Chromium projects only. Firefox and WebKit projects will fail because the local browser install is skipped.
 
 For a Playwright `webServer` config with a literal `port` or localhost `url`, solci maps
 `http://localhost:N` and `http://127.0.0.1:N` to the sandbox preview URL. Use `--expose-port N` for a
@@ -143,6 +144,8 @@ Add `--pr` to create a branch, commit the workflow edit and curve chart, push th
 GitHub pull request. `--dry-run` still clones the base branch so the brain sees the real workflow, but
 skips branch, commit, push, and PR creation. The brain may return no change when the evidence does not
 justify an edit.
+`--pr` commits with your local git identity and pushes to origin under your `gh` login, so it needs push
+access to the repository; there is no fork fallback.
 
 For safety, the agent only ever edits the single selected file under `.github/workflows`. A human always
 reviews and merges the pull request; solci never merges anything itself.

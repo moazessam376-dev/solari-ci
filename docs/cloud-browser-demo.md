@@ -30,7 +30,7 @@
 
 ## Recommendation
 
-> Use 2 vCPU: 215 s for $0.0055 per run, within 10% of the 2 vCPU time (215 s) at 100% of its cost.
+> Only one size measured (2 vCPU: 215 s for $0.0055 per run); run with more --cpu sizes to compare.
 
 ## Findings
 
