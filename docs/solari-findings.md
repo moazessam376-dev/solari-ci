@@ -98,21 +98,3 @@ what I would want: document that GPU acceleration is not available so people tes
 ## What worked well
 
 Sandbox boot is fast, about 1 second, and a shallow git clone right after is sub-second too, which makes short-lived sandboxes practical for CI-style workloads. Requested `cpu` and `memMb` are honored up to 16 vCPU and 16 GB, which is more than enough headroom for the sizes I tested. Once I accounted for the quirks above, the platform was reliable and predictable to build on.
-
-## Ready to paste
-
-1. exec calls get killed around 28s wall clock, no documented cap or async option.
-2. exec request body has a size cap near 16KB, no clear error when you hit it.
-3. nproc reports 1 right after boot, extra vCPUs hot-plug 1-15s later.
-4. Polling GET /sandboxes/:id seems to refresh the idle timer, sandboxes never expire while watched.
-5. Starter plan caps concurrent sandboxes at 2, not documented in the error.
-6. HOME is unset in a fresh sandbox, breaks npm/pip/git until you export it.
-7. Default memory is max(2048MB, 1024MB per vCPU), not stated anywhere obvious.
-8. Base sandbox only has about 2.2GB free disk, too tight for some monorepos.
-9. No Docker or container runtime, services/container jobs cannot run at all.
-10. Preview URL auth token in the query string gets dropped by relative URL resolution.
-11. Cloud browser CDP sessions drop after about 10 minutes, no documented TTL.
-12. No GET /sessions endpoint, leaked browser sessions cannot be found or killed.
-13. WebGL is software rendered (Mesa llvmpipe), no GPU acceleration, not documented.
-14. Good: about 1s sandbox boot and sub-second shallow clone.
-15. Good: cpu/memMb honored up to 16 vCPU and 16GB.
