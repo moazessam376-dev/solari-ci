@@ -15,9 +15,10 @@ from typing import Any
 import typer
 from rich.markup import escape
 
-from . import cost, findings, history, report, runner, workflow
+from . import agent as agent_layer
+from . import brain, cost, findings, history, report, workflow
 from .client import SolariClient, SolariError, load_env
-from .models import Curve, Finding, Job, JobBaseline, RepoSpec, RunResult, Workflow
+from .models import Finding, Job, JobBaseline, RunResult, Workflow
 from .theme import console, err_console, header, mark, table
 
 app = typer.Typer(
@@ -42,7 +43,7 @@ def _mask_api_key(value: str) -> str:
 
 def _safe_error(error: BaseException) -> str:
     detail = str(error)
-    for key_name in ("SOLARI_API_KEY", "GITHUB_TOKEN", "GH_TOKEN"):
+    for key_name in ("SOLARI_API_KEY", "GITHUB_TOKEN", "GH_TOKEN", "GOOGLE_API_KEY"):
         secret = os.environ.get(key_name)
         if secret:
             detail = detail.replace(secret, "[redacted]")
@@ -51,7 +52,7 @@ def _safe_error(error: BaseException) -> str:
 
 def _print_error(error: BaseException | str) -> None:
     detail = _safe_error(error) if isinstance(error, BaseException) else error
-    for key_name in ("SOLARI_API_KEY", "GITHUB_TOKEN", "GH_TOKEN"):
+    for key_name in ("SOLARI_API_KEY", "GITHUB_TOKEN", "GH_TOKEN", "GOOGLE_API_KEY"):
         secret = os.environ.get(key_name)
         if secret:
             detail = detail.replace(secret, "[redacted]")
@@ -435,20 +436,17 @@ async def _run_curve(
     concurrency: int,
     keep: bool,
 ) -> list[RunResult]:
-    repo = RepoSpec(owner_repo, ref, f"https://github.com/{owner_repo}", private=True)
-    memory = (lambda cpu: mem_mb if mem_mb is not None else max(2048, cpu * 1024))
-    async with SolariClient() as client:
-        return await runner.run_sizes(
-            client,
-            job,
-            repo,
-            sizes,
-            mem_mb_for=memory,
-            concurrency=concurrency,
-            plan=plan,
-            keep=keep,
-            on_event=_run_progress,
-        )
+    return await agent_layer.run_sweep(
+        job,
+        owner_repo,
+        ref,
+        sizes,
+        mem_mb,
+        plan,
+        concurrency,
+        keep,
+        on_event=_run_progress,
+    )
 
 
 @app.command()
@@ -499,21 +497,13 @@ def run(
             f"{escape(target)}:{escape(expanded_job.id)}[/muted]"
         )
         results = asyncio.run(_run_curve(expanded_job, target, ref, sizes, mem, plan, concurrency, keep))
-        github_cost = None
-        if baseline is not None:
-            github_cost = cost.github_job_cost(
-                baseline.median_s,
-                baseline.runner_label,
-                private=private is not False,
-            )
-        curve = Curve(
-            job_id=expanded_job.id,
-            owner_repo=target,
-            runs=results,
-            baseline=baseline,
-            github_cost_usd=github_cost,
-            recommendation=cost.recommend(results, baseline, private=private is not False),
-            findings=findings.analyze(selected_workflow, expanded_job, baseline),
+        curve = agent_layer.build_curve(
+            target,
+            selected_workflow,
+            expanded_job,
+            results,
+            baseline,
+            private=private is not False,
         )
         report.render_terminal(curve, console)
         if json_path is not None:
@@ -529,6 +519,97 @@ def run(
         _print_error(error)
         raise typer.Exit(2) from error
     except (OSError, ValueError, workflow.WorkflowError, typer.BadParameter) as error:
+        _print_error(error)
+        raise typer.Exit(1) from error
+
+
+def _agent_progress(event: dict[str, Any]) -> None:
+    if event.get("event") != "agent":
+        _run_progress(event)
+        return
+    message = escape(str(event.get("message", "")))
+    console.print(f"  [accent]{mark('agent')}[/accent] {message}")
+
+
+@app.command()
+def agent(
+    target: str = typer.Argument(..., help="owner/repo; agent mode uses a remote repository."),
+    job: str = typer.Option(..., "--job", "-j", help="Job id or display name."),
+    cpu: str = typer.Option("1,2,4", "--cpu", help="Comma-separated CPU sizes."),
+    mem: int | None = typer.Option(None, "--mem", min=128, help="Memory in MB for every size."),
+    plan: str = typer.Option(
+        "starter",
+        "--plan",
+        help="Solari plan: free, starter, professional, or enterprise.",
+    ),
+    concurrency: int = typer.Option(2, "--concurrency", min=1),
+    runs: int = typer.Option(20, "--runs", min=1, help="Completed runs to use for the baseline."),
+    brain_name: str | None = typer.Option(None, "--brain", help="Proposal brain: codex or gemini."),
+    effort: str = typer.Option("medium", "--effort", help="Codex reasoning effort."),
+    open_pr: bool = typer.Option(False, "--pr", help="Open a pull request for the proposal."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Clone and propose without publishing anything."),
+    base: str = typer.Option("main", "--base", help="Base branch to clone and measure."),
+    allow_history_only: bool = typer.Option(
+        False,
+        "--allow-history-only",
+        help="Propose a change even if every sandbox size in the sweep failed, using history alone.",
+    ),
+) -> None:
+    """Measure a job, propose a workflow edit, and optionally open a pull request."""
+    load_env()
+    if not _is_owner_repo(target):
+        _print_error("solci agent requires an owner/repo target; local paths are not supported")
+        raise typer.Exit(1)
+    try:
+        sizes = _parse_cpu(cpu)
+        if brain_name not in {None, "codex", "gemini"}:
+            raise typer.BadParameter("brain must be codex or gemini")
+        if effort not in {"medium", "high", "xhigh", "max"}:
+            raise typer.BadParameter("effort must be medium, high, xhigh, or max")
+        console.print()
+        header("agent", dry_run=dry_run)
+        console.print(f"[accent]{mark('agent')}[/accent] [muted]{escape(target)}:{escape(job)}[/muted]")
+        result = asyncio.run(
+            agent_layer.run_agent(
+                target,
+                job,
+                sizes,
+                brain_name,
+                effort,
+                open_pr,
+                dry_run,
+                base,
+                on_event=_agent_progress,
+                plan=plan,
+                concurrency=concurrency,
+                runs=runs,
+                mem_mb=mem,
+                allow_history_only=allow_history_only,
+            )
+        )
+        if result.pr_url:
+            console.print(f"[pass]Agent complete:[/pass] {escape(result.pr_url)}")
+        elif result.proposal is not None and not result.proposal.diff.strip():
+            console.print("[pass]Agent complete:[/pass] no change proposed")
+        else:
+            console.print("[pass]Agent complete:[/pass] proposal ready; no PR opened")
+        raise typer.Exit(0)
+    except typer.Exit:
+        raise
+    except SolariError as error:
+        _print_error(error)
+        raise typer.Exit(2) from error
+    except agent_layer.NoMeasurementsError as error:
+        _print_error(error)
+        raise typer.Exit(4) from error
+    except (
+        OSError,
+        ValueError,
+        RuntimeError,
+        workflow.WorkflowError,
+        brain.BrainError,
+        typer.BadParameter,
+    ) as error:
         _print_error(error)
         raise typer.Exit(1) from error
 

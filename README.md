@@ -89,14 +89,14 @@ RECOMMENDATION
   at 100% of its cost. GitHub ubuntu-latest median is 122 s (free on public repos; private-rate reference $0.030/run).
 ```
 
-This is a legitimate and interesting result: the job is not CPU-bound — 191 s at 1 vCPU versus 197 s at
-2 vCPU — so 1 vCPU is the right size at $0.003/run. The 4 and 8 vCPU runs hit the repository's own flaky
+This is a legitimate and interesting result: the job is not CPU-bound: 191 s at 1 vCPU versus 197 s at
+2 vCPU, so 1 vCPU is the right size at $0.003/run. The 4 and 8 vCPU runs hit the repository's own flaky
 PTY test (`tests/harness/submit-turn.test.ts`) at the same point, so their totals are excluded from the
 recommendation. See the per-step table in `docs/crosstalk.md` for the full log tail.
 
 A second headline run against `moazessam376-dev/Gym-App` (`typecheck`, Node 22 shim, private repo) shows
 the opposite, CPU-bound shape: a clean 67 s -> 48 s -> 45 s curve as vCPU increases, recommendation 2 vCPU
-(48 s, $0.0012/run, 53% of the 4 vCPU cost, within 10% of its time) — see `docs/gym-app.md`.
+(48 s, $0.0012/run, 53% of the 4 vCPU cost, within 10% of its time); see `docs/gym-app.md`.
 
 Jobs with `services:` or a `container:` refuse to run and exit 3:
 
@@ -107,6 +107,30 @@ available; solci runs steps natively in a microVM
 $ echo $?
 3
 ```
+
+## Agent mode
+
+`solci agent` gathers the inspect evidence, measures the selected job across the requested CPU sizes,
+and asks a brain to propose the smallest evidence-based edit to the selected workflow YAML.
+
+The `codex` brain uses the local `codex` CLI with `gpt-5.6-luna`. The `gemini` brain uses the Gemini REST
+API with `GOOGLE_API_KEY` and `gemini-2.5-pro`. Use `--brain codex` or `--brain gemini` to choose one.
+Without `--brain`, solci prefers a `codex` binary on PATH, then Gemini when `GOOGLE_API_KEY` is set.
+
+```bash
+solci agent moazessam376-dev/crosstalk --job test --cpu 1,2,4 --brain codex --effort medium --dry-run
+```
+
+Add `--pr` to create a branch, commit the workflow edit and curve chart, push the branch, and open a
+GitHub pull request. `--dry-run` still clones the base branch so the brain sees the real workflow, but
+skips branch, commit, push, and PR creation. The brain may return no change when the evidence does not
+justify an edit.
+
+For safety, the agent only ever edits the single selected file under `.github/workflows`. A human always
+reviews and merges the pull request; solci never merges anything itself.
+
+If every sandbox size in the sweep fails (for example a transient 429), the agent refuses to propose a
+change from history alone and exits with code 4. Pass `--allow-history-only` to proceed anyway.
 
 ## How it works
 

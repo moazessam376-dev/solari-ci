@@ -16,4 +16,4 @@ Sleep 6s
 
 Type "solci run moazessam376-dev/Gym-App --job typecheck --cpu 2"
 Enter
-Sleep 120s
+Sleep 150s

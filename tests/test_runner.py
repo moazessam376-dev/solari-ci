@@ -183,6 +183,38 @@ def test_shims_map_supported_actions_and_skip_unsupported_actions() -> None:
 
 
 @pytest.mark.asyncio
+async def test_run_sizes_cleans_up_other_sandboxes_when_one_create_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A 429 (or any exception) on one size's create must not block cleanup of the rest."""
+
+    class FlakyCreateClient(FakeClient):
+        async def create_sandbox(self, cpu: int, mem_mb: int, **kwargs: Any) -> dict[str, str]:
+            if cpu == 2:
+                raise RuntimeError("429 rate limited")
+            self.created.append((cpu, mem_mb))
+            return {"sandboxId": f"sb-{cpu}"}
+
+    client = FlakyCreateClient()
+    results = await runner.run_sizes(
+        client,
+        make_job(),
+        make_repo(),
+        [1, 2, 4],
+        mem_mb_for=lambda cpu: cpu * 1024,
+        concurrency=3,
+    )
+
+    by_cpu = {result.cpu: result for result in results}
+    assert by_cpu[2].ok is False
+    assert "429" in (by_cpu[2].error or "")
+    assert by_cpu[1].ok is True
+    # size 4 exceeds this fake client's fixed nproc, so its job step fails after the
+    # sandbox is created; the point of this test is that cleanup still runs for it.
+    assert sorted(client.deleted) == ["sb-1", "sb-4"]
+
+
+@pytest.mark.asyncio
 async def test_run_sizes_isolates_failures_and_sorts_results(monkeypatch: pytest.MonkeyPatch) -> None:
     async def fake_run_job(
         client: Any,

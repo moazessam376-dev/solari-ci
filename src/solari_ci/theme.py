@@ -36,6 +36,7 @@ MARKS: dict[str, str] = {
     "report": "▤",
     "history": "≡",
     "doctor": "◇",
+    "agent": "◆",
 }
 QUESTIONS: dict[str, str] = {
     "run": "right-size a GitHub Actions job",
@@ -44,6 +45,7 @@ QUESTIONS: dict[str, str] = {
     "report": "show evidence and recommendations",
     "history": "review previous runs",
     "doctor": "check this Solari setup",
+    "agent": "measure, propose, and prepare a workflow change",
 }
 WORDMARK = "[accent]▮ SOLCI[/accent] [accent.dim]///[/accent.dim]"
 
