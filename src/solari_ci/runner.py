@@ -368,27 +368,42 @@ async def _detect_repo_browser_tools(client: SolariClient, sandbox_id: str) -> s
 
 
 async def _write_browser_preloads(client: SolariClient, sandbox_id: str) -> None:
-    """Upload browser hooks into /tmp without changing the checked-out repo."""
-    payloads = {
-        "/tmp/solci/pw-preload.cjs": cloudbrowser.JS_PRELOAD,
-        "/tmp/solci/py-preload/sitecustomize.py": cloudbrowser.PYTHON_SITECUSTOMIZE,
-    }
-    commands = ["mkdir -p /tmp/solci/py-preload"]
-    for path, contents in payloads.items():
-        encoded = base64.b64encode(contents.encode("utf-8")).decode("ascii")
-        commands.append(
-            f"printf '%s' {shlex.quote(encoded)} | base64 -d > {shlex.quote(path)}"
-        )
+    """Upload browser hooks into /tmp without changing the checked-out repo.
+
+    Each payload is shipped in its own exec call: the sandbox exec API caps a
+    single request body, and the two preloads' base64 encodings combined can
+    exceed that cap even though either one alone fits comfortably.
+    """
     response = await client.exec(
         sandbox_id,
         "sh",
-        ["-c", " && ".join(commands)],
+        ["-c", "mkdir -p /tmp/solci/py-preload"],
         timeout_ms=EXEC_TIMEOUT_MS,
         cwd=None,
     )
     exit_code = _response_exit_code(response)
     if exit_code not in (None, 0):
-        raise RuntimeError(f"browser preload upload failed with exit code {exit_code}")
+        raise RuntimeError(f"browser preload directory setup failed with exit code {exit_code}")
+
+    payloads = {
+        "/tmp/solci/pw-preload.cjs": cloudbrowser.JS_PRELOAD,
+        "/tmp/solci/py-preload/sitecustomize.py": cloudbrowser.PYTHON_SITECUSTOMIZE,
+    }
+    for path, contents in payloads.items():
+        encoded = base64.b64encode(contents.encode("utf-8")).decode("ascii")
+        command = f"printf '%s' {shlex.quote(encoded)} | base64 -d > {shlex.quote(path)}"
+        response = await client.exec(
+            sandbox_id,
+            "sh",
+            ["-c", command],
+            timeout_ms=EXEC_TIMEOUT_MS,
+            cwd=None,
+        )
+        exit_code = _response_exit_code(response)
+        if exit_code not in (None, 0):
+            raise RuntimeError(
+                f"browser preload upload failed for {path} with exit code {exit_code}"
+            )
 
 
 async def _browser_base_url_map(

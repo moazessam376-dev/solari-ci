@@ -105,23 +105,65 @@ JS_PRELOAD = r"""
     const goto = page.goto;
     if (typeof goto === "function") {
       page.goto = function (url, ...args) {
-        let abs = url;
-        if (typeof url === "string") {
-          try {
-            const base =
-              (this._browserContext &&
-                this._browserContext._options &&
-                this._browserContext._options.baseURL) ||
-              undefined;
-            abs = new URL(url, base).toString();
-          } catch (_) {
-            abs = url;
+        // Playwright resolves a relative URL against the context's baseURL
+        // using the WHATWG URL constructor, which DROPS the base URL's own
+        // query string whenever the relative reference is path-absolute
+        // (e.g. "/"). Our rewritten baseURL carries a required auth token in
+        // its query string, so we must resolve relative URLs ourselves,
+        // preserving that token, before handing an absolute URL to the real
+        // goto implementation.
+        let target = url;
+        if (typeof url === "string" && !/^https?:\/\//i.test(url)) {
+          const base =
+            (this._browserContext &&
+              this._browserContext._options &&
+              this._browserContext._options.baseURL) ||
+            undefined;
+          if (base) {
+            try {
+              const baseParsed = new URL(base);
+              const resolved = new URL(url, base);
+              if (!resolved.search && baseParsed.search) {
+                resolved.search = baseParsed.search;
+              }
+              target = resolved.toString();
+            } catch (_) {
+              target = url;
+            }
           }
         }
-        return goto.call(this, mapAbsolute(abs), ...args);
+        if (typeof target === "string" && /^https?:\/\//i.test(target)) {
+          return goto.call(this, mapAbsolute(target), ...args);
+        }
+        return goto.call(this, target, ...args);
       };
     }
     return page;
+  }
+
+  function patchContextOptions(options) {
+    if (!options || typeof options !== "object") return options;
+    if (typeof options.baseURL === "string") {
+      const rewritten = rewriteUrl(options.baseURL);
+      if (rewritten !== options.baseURL) {
+        return Object.assign({}, options, { baseURL: rewritten });
+      }
+    }
+    return options;
+  }
+
+  // @playwright/test sets `use.baseURL` as `browserType._defaultContextOptions`
+  // rather than passing it through the per-call `newContext(options)` argument,
+  // so it must be rewritten in place on the browser type as well.
+  function patchDefaultContextOptions(browser) {
+    const browserType = browser && browser._browserType;
+    const defaults = browserType && browserType._defaultContextOptions;
+    if (defaults && typeof defaults === "object" && typeof defaults.baseURL === "string") {
+      const rewritten = rewriteUrl(defaults.baseURL);
+      if (rewritten !== defaults.baseURL) {
+        defaults.baseURL = rewritten;
+      }
+    }
   }
 
   function patchContext(context) {
@@ -148,13 +190,19 @@ JS_PRELOAD = r"""
     const newContext = browser.newContext;
     if (typeof newContext === "function") {
       browser.newContext = async function (options, ...args) {
-        return patchContext(await newContext.call(this, options, ...args));
+        patchDefaultContextOptions(this);
+        return patchContext(
+          await newContext.call(this, patchContextOptions(options), ...args),
+        );
       };
     }
     const newContextForReuse = browser._newContextForReuse;
     if (typeof newContextForReuse === "function") {
       browser._newContextForReuse = async function (options, ...args) {
-        return patchContext(await newContextForReuse.call(this, options, ...args));
+        patchDefaultContextOptions(this);
+        return patchContext(
+          await newContextForReuse.call(this, patchContextOptions(options), ...args),
+        );
       };
     }
     return browser;
@@ -177,7 +225,8 @@ JS_PRELOAD = r"""
       chromium.launch = async (opts) => patchBrowser(await chromium.connectOverCDP(cdpUrl));
       chromium.launchPersistentContext = async (dir, opts) => {
         const browser = await chromium.connectOverCDP(cdpUrl);
-        const context = browser.contexts()[0] || await browser.newContext(opts);
+        const context =
+          browser.contexts()[0] || (await browser.newContext(patchContextOptions(opts)));
         return patchContext(context);
       };
     }

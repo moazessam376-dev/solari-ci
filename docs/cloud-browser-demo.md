@@ -4,33 +4,33 @@
 
 | CPU | Mem MB | Boot | CPU online | Total | Solari/run | Solari/month | Speedup vs 1 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2 | 2,048 | 64.4 s | 1.6 s | 214.9 s | $0.0055 | - | - |
+| 2 | 2,048 | 0.8 s | 2.6 s | 438.2 s | $0.0112 | - | - |
 
 ## Total time
 
 | Size | Total | Cost/run |
 | --- | --- | --- |
-| 2 vCPU | 214.9 s | $0.0055 |
+| 2 vCPU | 438.2 s | $0.0112 |
 
 ## Browser
 
 | Size | Sessions | Seconds | Cost |
 | --- | --- | --- | --- |
-| 2 vCPU | 1 | 5.6 s | $0.0002 |
+| 2 vCPU | 1 | 5.8 s | $0.0002 |
 
 ## Per-step timing
 
 | Step | 2 vCPU |
 | --- | --- |
-| actions/checkout@v4 | 3.1s (checkout done by runner) |
-| actions/setup-node@v4 | 5.3s |
-| npm ci | 133.5s |
+| actions/checkout@v4 | 2.8s (checkout done by runner) |
+| actions/setup-node@v4 | 3.3s |
+| npm ci | 421.5s |
 | npx playwright install --with-deps chromium | 0.0s (playwright install skipped: Solari cloud Chrome is already provisioned) |
-| npx playwright test | 5.0s (cloud browser: 1 session, 5.6s, $0.0002) |
+| npx playwright test | 5.1s (cloud browser: 1 session, 5.8s, $0.0002) |
 
 ## Recommendation
 
-> Only one size measured (2 vCPU: 215 s for $0.0055 per run); run with more --cpu sizes to compare.
+> Only one size measured (2 vCPU: 438 s for $0.0112 per run); run with more --cpu sizes to compare.
 
 ## Findings
 
