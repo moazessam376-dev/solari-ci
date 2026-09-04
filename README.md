@@ -150,6 +150,8 @@ access to the repository; there is no fork fallback.
 For safety, the agent only ever edits the single selected file under `.github/workflows`. A human always
 reviews and merges the pull request; solci never merges anything itself.
 
+Real example: [Gym-App PR #111](https://github.com/moazessam376-dev/Gym-App/pull/111) was opened by `solci agent moazessam376-dev/Gym-App --job typecheck --cpu 1,2,4 --pr`. From the 67/48/45 s curve and a 35% historical failure rate, the model added `timeout-minutes: 15` and a `concurrency` group with `cancel-in-progress`, and nothing else.
+
 If every sandbox size in the sweep fails (for example a transient 429), the agent refuses to propose a
 change from history alone and exits with code 4. Pass `--allow-history-only` to proceed anyway.
 

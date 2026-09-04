@@ -42,3 +42,15 @@
 ## How measured
 
 _Measured on Solari microVMs; workflow steps run natively. Actions shimmed: actions/setup-python, astral-sh/setup-uv, actions/setup-node, pnpm/action-setup, oven-sh/setup-bun. Actions skipped/no-op: actions/checkout (runner clones the repository), actions/cache, actions/upload-artifact, actions/download-artifact, codecov/*, unsupported actions._
+
+## Test output
+
+The `npx playwright test` step ran the two specs in [solci-browser-demo](https://github.com/moazessam376-dev/solci-browser-demo): one against the repo's own `http-server` on port 4173, reached through the sandbox preview URL with the auth token preserved, and one against an external site.
+
+```
+Running 2 tests using 1 worker
+··
+  2 passed (2.9s)
+```
+
+The sandbox list was empty after the run and the single browser session was released in the step's `finally` block.
